@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>芋泥椰子冻🥥 - 芋椰的小世界们</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Inter 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F2F5; /* 柔和的背景色，已更新 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 确保页面至少占满视口高度 */
+            margin: 0;
+            padding: 20px; /* 增加一些内边距 */
+            box-sizing: border-box; /* 确保内边距和边框包含在元素的总宽度和高度内 */
+        }
+        .container {
+            background-color: #ffffff; /* 白色背景 */
+            border-radius: 16px; /* 更大的圆角 */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* 柔和的阴影 */
+            padding: 40px; /* 增加内边距 */
+            max-width: 900px; /* 最大宽度 */
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* 增加元素间距 */
+        }
+        .section-card {
+            background-color: #f9fafb; /* 卡片背景色 */
+            border-radius: 12px; /* 卡片圆角 */
+            padding: 25px; /* 卡片内边距 */
+            border: 1px solid #e5e7eb; /* 边框 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 过渡效果 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .section-card:hover {
+            transform: translateY(-5px); /* 鼠标悬停上浮效果 */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* 悬停阴影加深 */
+        }
+        .section-card h2 {
+            color: #334155; /* 深灰色标题 */
+            margin-bottom: 15px;
+            font-size: 1.75rem; /* 更大的标题字体 */
+            font-weight: 700;
+        }
+        .section-card p {
+            color: #64748b; /* 浅灰色描述 */
+            margin-bottom: 20px;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        .section-card a {
+            display: inline-block;
+            background-color: #6366f1; /* 蓝色按钮 */
+            color: white;
+            padding: 12px 28px; /* 按钮内边距 */
+            border-radius: 8px; /* 按钮圆角 */
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); /* 按钮阴影 */
+        }
+        .section-card a:hover {
+            background-color: #4f46e5; /* 按钮悬停颜色 */
+            transform: translateY(-2px); /* 按钮悬停上浮 */
+        }
+        .header h1 {
+            color: #1e293b; /* 更深的标题色 */
+            font-size: 3rem; /* 欢迎标题更大 */
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #475569; /* 欢迎描述色 */
+            font-size: 1.25rem;
+            line-height: 1.7;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 响应式网格布局 */
+            gap: 25px; /* 网格间距 */
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                gap: 20px;
+            }
+            .header h1 {
+                font-size: 2.25rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .section-card {
+                padding: 20px;
+            }
+            .section-card h2 {
+                font-size: 1.5rem;
+            }
+            .section-card p {
+                font-size: 0.9rem;
+            }
+            .section-card a {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>芋泥椰子冻🥥</h1> <!-- 主标题已更新 -->
+            <p>芋椰的小世界们</p> <!-- 副标题已更新 -->
+        </header>
+
+        <div class="grid-container">
+            <!-- 写作与思考子页面 -->
+            <div class="section-card">
+                <h2>✍️ 写作与思考</h2>
+                <p>探索我的文字世界，这里有关于诗歌、散文和生活感悟的篇章。</p> <!-- 描述已更新 -->
+                <a href="/writing/">进入写作空间</a>
+            </div>
+
+            <!-- 其他子页面示例 (已注释掉备用) -->
+            <!--
+            <div class="section-card">
+                <h2>💡 产品管理洞察</h2>
+                <p>分享我在产品管理领域的经验、案例分析和对行业趋势的见解。</p>
+                <a href="/product/" aria-label="进入产品管理洞察页面">即将上线...</a>
+            </div>
+
+            <div class="section-card">
+                <h2>🎨 创意作品集</h2>
+                <p>展示我的设计、摄影或其他个人创意项目。</p>
+                <a href="/portfolio/" aria-label="进入创意作品集页面">即将上线...</a>
+            </div>
+
+            <div class="section-card">
+                <h2>💻 技术探索</h2>
+                <p>记录我的编程学习笔记、小项目和技术挑战。</p>
+                <a href="/tech/" aria-label="进入技术探索页面">即将上线...</a>
+            </div>
+            -->
+        </div>
+
+        <footer class="text-gray-500 text-sm mt-8">
+            <p>&copyright 2024-2025 lyy0323 all rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
