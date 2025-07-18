@@ -16,25 +16,26 @@
         ? 'https://jsd.cdn.zzko.cn/gh/lyy0323/lyy0323.github.io@main'   // 境内
         : 'https://cdn.jsdelivr.net/gh/lyy0323/lyy0323.github.io@main'; // 境外
         window.__staticBase = base;   // 供下面 link / script 用
+        document.getElementById('yuye-css').href = base + '/static/yuye.css';
+        document.getElementById('yuye-js').href = base + '/static/yuye.js';
     })();
     </script>
-    <link rel="stylesheet"
-            href="javascript:document.write(window.__staticBase+'/static/yuye.css')">
-    <script src="javascript:document.write(window.__staticBase+'/static/yuye.js')"></script>
+    <link rel="stylesheet" id="yuye-css" href="">
+    <script id="yuye-js" href=""></script>
     <style>
         @font-face {
             font-family: 'lxgw';
-            src: url('__staticBase__/static/lxgw.woff') format('woff');
+            src: url('${base}/static/lxgw.woff') format('woff');
             font-display: swap;
         }
         /* icomoon icon fonts*/
         @font-face {
             font-family: 'icomoon';
-            src: url('__staticBase__/static/icomoon.eot?jhbhm');
-            src: url('__staticBase__/static/icomoon.eot?jhbhm#iefix') format('embedded-opentype'),
-            url('__staticBase__/static/icomoon.ttf?jhbhm') format('truetype'),
-            url('__staticBase__/static/icomoon.woff?jhbhm') format('woff'),
-            url('__staticBase__/static/icomoon.svg?jhbhm#icomoon') format('svg');
+            src: url('${base}/static/icomoon.eot?jhbhm');
+            src: url('${base}/static/icomoon.eot?jhbhm#iefix') format('embedded-opentype'),
+            url('${base}/static/icomoon.ttf?jhbhm') format('truetype'),
+            url('${base}/static/icomoon.woff?jhbhm') format('woff'),
+            url('${base}/static/icomoon.svg?jhbhm#icomoon') format('svg');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
