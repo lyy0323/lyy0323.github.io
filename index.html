@@ -15,31 +15,41 @@
         const base = isCN
         ? 'https://jsd.cdn.zzko.cn/gh/lyy0323/lyy0323.github.io@main'   // 境内
         : 'https://cdn.jsdelivr.net/gh/lyy0323/lyy0323.github.io@main'; // 境外
+        console.log(base);
         window.__staticBase = base;   // 供下面 link / script 用
-        document.getElementById('yuye-css').href = base + '/static/yuye.css';
-        document.getElementById('yuye-js').href = base + '/static/yuye.js';
+        window.addEventListener('DOMContentLoaded', function() {
+            var cssLink = document.getElementById('yuye-css');
+            if (cssLink) {
+                cssLink.href = base + '/static/yuye.css';
+                document.getElementById('yuye-js').href = base + '/static/yuye.js';
+            }
+
+            // 动态注入 @font-face 样式
+            var fontFaceStyle = document.createElement('style');
+            fontFaceStyle.innerHTML = `
+                @font-face {
+                    font-family: 'lxgw';
+                    src: url('${base}/static/lxgw.woff') format('woff');
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'icomoon';
+                    src: url('${base}/static/icomoon.eot?jhbhm');
+                    src: url('${base}/static/icomoon.eot?jhbhm#iefix') format('embedded-opentype'),
+                        url('${base}/static/icomoon.ttf?jhbhm') format('truetype'),
+                        url('${base}/static/icomoon.woff?jhbhm') format('woff'),
+                        url('${base}/static/icomoon.svg?jhbhm#icomoon') format('svg');
+                    font-weight: normal;
+                    font-style: normal;
+                    font-display: swap;
+                }
+            `;
+            document.head.appendChild(fontFaceStyle);
+        });
     })();
     </script>
-    <link rel="stylesheet" id="yuye-css" href="">
-    <script id="yuye-js" href=""></script>
-    <style>
-        @font-face {
-            font-family: 'lxgw';
-            src: url('${base}/static/lxgw.woff') format('woff');
-            font-display: swap;
-        }
-        /* icomoon icon fonts*/
-        @font-face {
-            font-family: 'icomoon';
-            src: url('${base}/static/icomoon.eot?jhbhm');
-            src: url('${base}/static/icomoon.eot?jhbhm#iefix') format('embedded-opentype'),
-            url('${base}/static/icomoon.ttf?jhbhm') format('truetype'),
-            url('${base}/static/icomoon.woff?jhbhm') format('woff'),
-            url('${base}/static/icomoon.svg?jhbhm#icomoon') format('svg');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
+    <link rel="stylesheet" id="yuye-css">
+    <script id="yuye-js"></script>
     </style>
     <style>
         body {
@@ -292,7 +302,7 @@
             <br>> 作品见于铭社微信公众号，《浦江四首次修逸澄池韵》等
             <br>> 自编有《中洲集》《海风集》《轨边集》等</div>
             <div id="about3" class="vis-content"><h4 style="margin: 0 0 0.5em 0">&emsp;音乐</h4>
-            > <a href="https://music.163.com/#/artist?id=49755026"><span class="appicon" style="background-image: url(__staticBase__/static/appicon/wyy.webp)"></span>歌手主页：林雨夜</a>
+            > <a href="https://music.163.com/#/artist?id=49755026"><span class="appicon" style="background-image: url(https://github.com/lyy0323/lyy0323.github.io/raw/refs/heads/main/static/appicon/wyy.webp)"></span>歌手主页：林雨夜</a>
             <br>> 上海交大国学社乐府部，创始人，2021.12
             <br>> 上海交大国学社乐府部，作词、作曲、编曲、AI虚拟歌姬调教，《溯流沙》《大东》《未解忆长安》《他乡雨》等
             <br>> 第六届“汇创青春”上海大学生文化创意作品展示活动，三等奖，《雨秋》
@@ -328,9 +338,9 @@
             <br>> 《南洋精选集》首席编辑，2024.05~2025.03</div>
             <hr>
         
-            <p><span class="appicon" style="background-image: url(__staticBase__/static/appicon/xhs.webp)"></span>@芋泥椰子冻</p>
+            <p><span class="appicon" style="background-image: url(https://github.com/lyy0323/lyy0323.github.io/raw/refs/heads/main/static/appicon/xhs.webp)"></span>@芋泥椰子冻</p>
         <!--    <p><span class="appicon" style="background-image: url({{site.baseurl}}/assets/imgs/appicon/lof.png)"></span>@芋泥椰子蝶</p>-->
-            <p><span class="appicon" style="background-image: url(__staticBase__/static/appicon/wyy.webp)"></span>@林雨夜0323（用户） / @林雨夜（歌手）</p>
+            <p><span class="appicon" style="background-image: url(https://github.com/lyy0323/lyy0323.github.io/raw/refs/heads/main/static/appicon/wyy.webp)"></span>@林雨夜0323（用户） / @林雨夜（歌手）</p>
 
         </div>
 
