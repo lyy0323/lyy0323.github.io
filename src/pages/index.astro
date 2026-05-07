@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TerminalHero from '../components/TerminalHero.tsx';
+import WorldsNav from '../components/WorldsNav.tsx';
+import AboutSection from '../components/AboutSection.tsx';
+---
+
+<BaseLayout title="林雨夜 | lyy0323.space" description="AI Product Manager & Digital Creator — 芋椰的小世界们">
+  <main class="min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 py-12 sm:py-20 gap-10 sm:gap-16">
+
+    <!-- ASCII art header -->
+    <div class="text-center text-terminal-green/25 text-[10px] sm:text-xs font-mono leading-tight select-none hidden sm:block">
+      <pre class="inline-block">{`██╗   ██╗██╗   ██╗██╗   ██╗███████╗
+╚██╗ ██╔╝██║   ██║╚██╗ ██╔╝██╔════╝
+ ╚████╔╝ ██║   ██║ ╚████╔╝ █████╗
+  ╚██╔╝  ██║   ██║  ╚██╔╝  ██╔══╝
+   ██║   ╚██████╔╝   ██║   ███████╗
+   ╚═╝    ╚═════╝    ╚═╝   ╚══════╝`}</pre>
+    </div>
+
+    <!-- Terminal Hero -->
+    <section class="w-full max-w-3xl">
+      <TerminalHero client:load />
+    </section>
+
+    <!-- Worlds Navigation -->
+    <section class="w-full max-w-3xl">
+      <WorldsNav client:visible />
+    </section>
+
+    <!-- About Section -->
+    <section class="w-full max-w-3xl">
+      <AboutSection client:visible />
+    </section>
+
+  </main>
+</BaseLayout>

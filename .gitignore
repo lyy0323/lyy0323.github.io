@@ -15,4 +15,11 @@ _site/
 *.swp
 *.swo
 *.bak
-*.old 
+*.old
+
+# Astro
+dist/
+.astro/
+
+# Staging
+src/content/blogs/_staging/

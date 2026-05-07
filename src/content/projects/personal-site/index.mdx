@@ -1,0 +1,86 @@
+---
+title: 芋泥椰子冻 · 个人主页
+description: 你正在看的这个网站。Terminal/Hacker 风格，Astro + React Islands 构建，底部有一个真的能用的命令行。从第一行代码到现在的所有功能，全部由我和 Claude Code 在一个下午结对完成。
+category: website
+tags: ['Astro', 'React', 'TypeScript', 'Tailwind CSS', 'MDX']
+url: 'https://lyy0323.space'
+repo: 'https://github.com/lyy0323/lyy0323.github.io'
+status: active
+date: '2024-11'
+featured: false
+order: 5
+---
+
+import Timeline from '../../../components/Timeline.tsx';
+import MetricCounter from '../../../components/MetricCounter.tsx';
+
+## 这个项目是什么
+
+你正在看的这个网站。一个 Terminal/Hacker 风格的个人 Landing Page + 技术作品集，底部那个命令行是真的能用的——试试 `help`。
+
+整站用 Astro 5 做静态生成，React Islands 做交互组件，Tailwind CSS 做样式，MDX 做内容管理，GitHub Actions 自动部署到 GitHub Pages。
+
+## 为什么做这个
+
+简历是一维的——一行一行的经历和成果。但我做过的很多项目，简历上一行字根本装不下它的故事。我需要一个地方，能让人"走进来"看每个项目是怎么长出来的、过程中我在想什么、做了哪些决策。
+
+选 Terminal 风格是因为它同时满足了两个需求：作为产品经理，它展示审美品味；作为一个会写代码的人，它展示技术底蕴。而且——真的挺酷的。
+
+## 一个下午的结对编程
+
+这个站的所有功能，从第一行代码到你现在看到的样子，是我和 Claude Code 在一个下午结对完成的。不是"我提需求 AI 写代码"那种——更像是两个人坐在一起 pair programming，一个管产品方向和设计决策，一个管实现和架构。
+
+<Timeline client:visible items={[
+  { date: '14:00', title: '项目启动', desc: 'Astro 初始化，选定 Terminal 风格，定下配色方案', accent: 'green' },
+  { date: '14:30', title: 'Landing Page', desc: 'ASCII art + 打字机动画 + Worlds 导航 + About man page', accent: 'cyan' },
+  { date: '15:00', title: '/tech 板块', desc: 'Content Collections + 项目 Gallery + 详情页 + 筛选', accent: 'cyan' },
+  { date: '15:30', title: 'GitHub Actions', desc: 'CI/CD 部署，CNAME 保留', accent: 'amber' },
+  { date: '16:00', title: '交互式终端', desc: '底部命令行，16 个命令，sessionStorage 跨页持久化', accent: 'green' },
+  { date: '16:30', title: '终端增强', desc: 'pipe/&&/grep/more，虚拟文件系统，easter eggs', accent: 'pink' },
+  { date: '17:00', title: '颜色 & 排版', desc: '降低对比度，六色排列组合配色，Q&A 折叠', accent: 'amber' },
+  { date: '17:30', title: '目录重构', desc: 'projects + blog + app 三类型，动态数据驱动', accent: 'cyan' },
+  { date: '18:00', title: 'MDX 组件', desc: 'Timeline / DiffView / MetricCounter 三个可视化组件', accent: 'green' },
+  { date: '18:30', title: '内容填充', desc: '逐个重写项目页，和 AI 对话挖掘个人洞察', accent: 'pink' },
+]} />
+
+## 技术上有意思的部分
+
+**交互式终端**是我最喜欢的功能。它不是装饰——它是一个完整的虚拟文件系统，支持 `ls`（含 `-lah` 参数）、`cd`（相对/绝对路径，基于 cwd）、`cat index.mdx`（从 DOM 抓取页面内容）、`grep`（提取 frontmatter 字段）、`open`（外链跳转）、管道 `|`、`&&`、IME 兼容。终端状态（展开、历史记录）通过 sessionStorage 跨页面持久化——`cd tech` 之后，新页面打开时终端仍然展开，命令历史还在。
+
+**项目数据是动态的**。终端里的 `ls tech/projects/` 不是硬编码——Astro 在构建时从 Content Collections 读取所有项目，作为 prop 传给 React 终端组件。新增一个项目目录，rebuild 后终端自动能 ls 到它。
+
+**MDX 组件**让内容不再是纯文本。Timeline 展示项目演进（带滚动渐入动画），DiffView 做技术方案 AB 对比（diff 风格），MetricCounter 做数字从零滚动计数。这些组件在 MDX 里直接 import 使用，每个项目页可以根据需要混搭。
+
+**CONTRIBUTING.md** 是给 AI agent 看的接入文档——agent 浏览一个项目目录后，会先向我提 3-6 个问题（动机/决策/反思），拿到回答后再写 MDX。每篇项目页都是人机对话的产物，不是 AI 单方面生成的。
+
+## 设计决策
+
+**配色**用了 `rgb(85, 119, 153)` 的六种排列组合——6 个颜色全部由同三个数字的不同排列产生，数学上很优雅，视觉上也足够区分。背景 `#202026`，终端面板 `#1e1e24`，文字 `#c8ccd0`，刻意降低了对比度来改善长时间阅读体验。
+
+**Q&A 用 `<details>` 折叠**，初始只展示问题。这是一个产品决策：访客第一眼看到的是问题列表——如果某个问题击中了他的好奇心，他会点开；否则不会被大段文字淹没。
+
+## Q&A
+
+<details>
+<summary>Q: 一个下午做完一个网站，质量能保证吗？</summary>
+
+这里的"一个下午"是指功能开发。内容填充又花了大半天——逐个项目重写，每个都要和 AI 对话、翻 PDF 和报告、向自己确认事实。功能上 Astro + React + Tailwind 这个组合本身就非常高效，加上 Claude Code 的 pair programming，scaffold 到可用确实很快。但内容的深度不是速度能换来的——每个项目页的 Q&A 都是经过认真思考的。
+</details>
+
+<details>
+<summary>Q: 为什么不用 Next.js 或 Nuxt？</summary>
+
+不需要。这是一个纯静态站，没有用户登录、没有数据库、没有 API 调用。Astro 的优势恰好在这里：默认零 JS（除了 React Islands），构建产物就是 HTML + CSS + 少量 JS。页面加载极快，SEO 天然友好。Next.js 在这个场景下是 overkill。
+</details>
+
+<details>
+<summary>Q: 终端里有什么彩蛋？</summary>
+
+试试 `sudo`、`rm -rf /`、`vim`、`exit`、`ssh`、`brew install`。每个都有不一样的回复。我最喜欢的是 `su`——"there is no root here. only 芋椰."
+</details>
+
+<details>
+<summary>Q: 这个站会继续迭代吗？</summary>
+
+会。blog 和 app 两个目录现在还基本是空的。blog 准备放一些不属于任何项目的技术思考（已经有两篇了），app 未来可能放一些可交互的 H5 demo。内容会比功能更新得更频繁——框架已经搭好了，往里填东西很快。
+</details>

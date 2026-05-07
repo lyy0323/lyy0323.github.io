@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ContentGallery from '../../../components/ContentGallery.tsx';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects');
+const allBlogs = await getCollection('blogs');
+const allApps = await getCollection('apps');
+
+function extractSlug(id: string) {
+  return id.replace(/\/index\.mdx?$/, '').replace(/\.mdx?$/, '');
+}
+
+const items = [
+  ...allProjects.map(p => ({ title: p.data.title, description: p.data.description, category: p.data.category, tags: p.data.tags, status: p.data.status, date: p.data.date, slug: extractSlug(p.id), type: 'project' as const, featured: p.data.featured, order: p.data.order })),
+  ...allBlogs.map(b => ({ title: b.data.title, description: b.data.description, tags: b.data.tags, status: b.data.status, date: b.data.date, slug: extractSlug(b.id), type: 'blog' as const, featured: b.data.featured, order: b.data.order })),
+  ...allApps.map(a => ({ title: a.data.title, description: a.data.description, tags: a.data.tags, status: a.data.status, date: a.data.date, slug: extractSlug(a.id), type: 'app' as const, featured: a.data.featured, order: a.data.order })),
+];
+
+const projectCount = allProjects.length;
+---
+
+<BaseLayout title="Projects · Tech · 林雨夜" description="数字产品作品集 — Projects">
+  <main class="min-h-screen px-4 sm:px-6 py-12 sm:py-20 max-w-3xl mx-auto">
+    <div class="terminal-window mb-8">
+      <div class="terminal-header">
+        <div class="terminal-dot bg-red-500"></div>
+        <div class="terminal-dot bg-yellow-500"></div>
+        <div class="terminal-dot bg-green-500"></div>
+        <span class="ml-3 text-xs text-terminal-muted">~/tech/projects</span>
+      </div>
+      <div class="p-5 sm:p-6">
+        <div class="mb-3">
+          <span class="prompt-symbol">❯ </span>
+          <span class="cmd-text">ls</span>
+        </div>
+        <p class="text-sm text-terminal-text mb-1">
+          Projects by <span class="text-terminal-amber">林雨夜</span>
+        </p>
+        <div class="mt-2 text-xs text-terminal-muted">
+          <span class="text-terminal-green">{projectCount}</span> projects
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-8 text-xs text-terminal-muted">
+      <a href="/" class="link-glow">~</a>
+      <span class="mx-1">/</span>
+      <a href="/tech/" class="link-glow">tech</a>
+      <span class="mx-1">/</span>
+      <span class="text-terminal-text">projects</span>
+    </div>
+
+    <ContentGallery client:load items={items} defaultType="project" />
+
+    <footer class="text-center text-xs text-terminal-muted py-12 mt-8 border-t border-terminal-border">
+      <div>
+        <span class="prompt-symbol">❯ </span>
+        <span class="cmd-text">cd ..</span>
+        <span class="mx-2">·</span>
+        <a href="/tech/" class="link-glow">← back to tech</a>
+      </div>
+    </footer>
+  </main>
+</BaseLayout>

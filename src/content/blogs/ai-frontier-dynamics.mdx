@@ -1,0 +1,104 @@
+---
+title: 人工智能前沿领域动态
+description: 2025 年 10 月至 2026 年 4 月的 AI 产业观察。作为上海市知识竞争力与区域发展研究中心的研究员，我每月为《前沿领域动态》内参编译"人工智能"板块。这是六期内容的时间线综述。
+tags: ['AI', 'Policy Research', 'Industry Analysis', 'LLM', 'Embodied AI']
+status: active
+date: '2025-10'
+featured: true
+order: 11
+---
+
+import Timeline from '../../components/Timeline.tsx';
+
+## 这篇文章讲什么
+
+2025 年 10 月起，我作为上海市知识竞争力与区域发展研究中心的研究员（横向），为《前沿领域动态》内参编译"人工智能"板块。每月跟踪全球 AI 产业的关键事件，筛选、翻译、分析，写成面向决策层的政策简报。
+
+这篇文章是六期内容的时间线综述——从 GPT-5.1 到 OpenClaw，从 Diffusion LLM 到动态推理，半年间 AI 产业的密度让人窒息。
+
+## 2026 年 4 月
+
+<Timeline client:visible items={[
+  { date: '04.07', title: '智谱开源 GLM-5.1', desc: '核心基准反超 Claude 4.6 Opus，打破"开源落后闭源一代"的假设', accent: 'green' },
+  { date: '04.07', title: '字节+北大：动态推理机制', desc: '推理时动态修改模型权重，无需微调或适配器层，复杂数学/逻辑任务的"think-and-reshape"', accent: 'cyan' },
+  { date: '03.30', title: '北大优化 DeepSeek 注意力机制', desc: '重构稀疏化注意力计算矩阵，4 倍推理吞吐提升，生成精度零损失', accent: 'amber' },
+]} />
+
+## 2026 年 3 月
+
+<Timeline client:visible items={[
+  { date: '03.05', title: 'GPT 5.4 发布', desc: '竞争焦点从文本生成质量转向真实世界 Agent 执行和长程规划', accent: 'green' },
+  { date: '03 上旬', title: '中国大厂跟进 OpenClaw', desc: '字节 ArkClaw、腾讯 WorkBuddy/QClaw、小米 MiClaw、智谱 AutoClaw 密集发布', accent: 'amber' },
+]} />
+
+## 2026 年 2 月
+
+<Timeline client:visible items={[
+  { date: '02.19', title: 'Gemini 3.1 Pro', desc: '多模态理解再上台阶', accent: 'cyan' },
+  { date: '02.16', title: 'Qwen 3.5 发布', desc: '', accent: 'cyan' },
+  { date: '02.14', title: '字节 Seed 2.0', desc: '', accent: 'cyan' },
+  { date: '02.12', title: 'Seedance 2.0 视频生成', desc: '统一多模态音视频生成模型达到新 SOTA，引发迪士尼/派拉蒙 IP 版权争议', accent: 'pink' },
+  { date: '02.11', title: 'GLM-5 发布', desc: '', accent: 'cyan' },
+  { date: '02.09', title: '达摩院开源 RynnBrain 具身基础模型', desc: '首个在具身 AI 中使用 MoE 的模型，3B 激活参数超越 72B dense 模型', accent: 'green' },
+  { date: '02.05', title: 'Claude 4.6（百万 token 上下文）', desc: '', accent: 'cyan' },
+  { date: '02.05', title: '中科曙光 scaleX 万卡集群上线', desc: '3 套万卡集群共 3 万+ 加速卡，400Gb/s 互联，亚微秒延迟', accent: 'amber' },
+]} />
+
+## 2026 年 1 月
+
+<Timeline client:visible items={[
+  { date: '01.30', title: 'OpenClaw 开源 Agent 爆发', desc: 'GitHub 星标超 20 万，端侧接管终端设备和即时通讯应用，引发安全争议', accent: 'green' },
+]} />
+
+## 2025 年 12 月
+
+<Timeline client:visible items={[
+  { date: '12.18', title: '逐际动力 TRON 2 多形态机器人', desc: '模块化热插拔腿部配置（双足/轮式/履带），统一运动控制算法免重新标定', accent: 'cyan' },
+  { date: '12.12', title: 'BBVA 部署 GPT-5 金融核心业务', desc: '信贷审批辅助、反欺诈、自动理财规划，AI Agent 获得有限自主执行权', accent: 'amber' },
+  { date: '12.11', title: '迪士尼 × OpenAI 战略合作', desc: 'Disney/Pixar IP 入驻 Sora 视频平台，首个好莱坞大厂接入第三方生成式 AI', accent: 'pink' },
+  { date: '12 月', title: '豆包手机 GUI Agent 争议', desc: '系统级 GUI Agent 模拟触控操作，被微信/支付宝/银行 App 风控拦截', accent: 'amber' },
+  { date: '12 月', title: 'Diffusion LLM 规模化', desc: '离散扩散语言模型达 10B 参数，逼近自回归模型困惑度；SpecDiff 3-7 倍加速', accent: 'cyan' },
+]} />
+
+## 2025 年 11 月
+
+<Timeline client:visible items={[
+  { date: '11.24', title: 'Claude Opus 4.5 + Computer Use', desc: '模拟鼠标键盘操控桌面应用，SWE-bench 74.40%，竞争从对话智能转向行动智能', accent: 'green' },
+  { date: '11.18', title: 'Gemini 3.0 Pro', desc: 'Sparse MoE 架构，多模态理解和长上下文精度提升', accent: 'cyan' },
+  { date: '11.12', title: 'GPT-5.1 双模架构', desc: 'Instant 模式（8 种语气风格）+ Thinking 模式（动态分配推理算力）', accent: 'green' },
+]} />
+
+## 2025 年 10 月
+
+<Timeline client:visible items={[
+  { date: '10.28', title: 'ICLR 2026 VLA 投稿量激增 18 倍', desc: '视觉-语言-行动模型投稿 164 篇，关键趋势：离散扩散 + 具身思维链、新型分词器', accent: 'amber' },
+  { date: '10.22', title: '腾讯开源 HunyuanWorld-Mirror', desc: 'DiT 架构 3D 世界模型，文生 3D / 图生 3D / 物理仿真', accent: 'cyan' },
+]} />
+
+## 我的角色和感受
+
+每月一期，每期 3000-5000 字。我的工作是从海量的行业新闻、论文、产品发布中筛选出真正影响产业格局的事件，用决策者能理解的语言写出来。
+
+做了半年最大的感受是：**AI 产业的信息密度已经超过了任何个人的阅读带宽**。2026 年 2-3 月的基础模型密集发布期，两周内有 7 个旗舰模型发版——Claude 4.6、GLM-5、Seed 2.0、Qwen 3.5、Gemini 3.1 Pro、GPT 5.4，每个都需要去理解架构差异、评估基准变化、分析竞争格局。这个板块逼着我建立了一套高效的信息过滤和快速成文工作流，这个能力本身可能比内容更有价值。
+
+另一个观察：**Agent 正在从概念走向基础设施**。2025 年底 Claude 的 Computer Use 和豆包手机的 GUI Agent 还是新闻级事件；到 2026 年 3 月 OpenClaw 之后，Agent 已经成了每家大厂的标配能力。从"AI 能不能做"到"AI 做了之后谁来管"，监管讨论还远远没跟上。
+
+## Q&A
+
+<details>
+<summary>Q: 内参和公开发表的分析有什么区别？</summary>
+
+内参面向的是政策决策层——不关心技术细节，关心的是"这件事对上海的 AI 产业意味着什么"、"我们需要做什么应对"。所以写法上会更强调产业影响和政策含义，弱化技术实现。比如写 OpenClaw，公开分析会聊架构和开源生态，内参会聊安全风险和监管真空。这篇博客的内容比内参更技术向——毕竟这里的读者不一样。
+</details>
+
+<details>
+<summary>Q: 半年下来，你觉得最被低估的趋势是什么？</summary>
+
+Diffusion LLM。大家的注意力都在自回归模型的军备竞赛上，但离散扩散语言模型在 2025 年底悄悄规模化到了 10B 参数，困惑度逼近自回归模型。SpecDiff 用扩散模型做草稿生成器、自回归模型做验证器，长文本生成延迟降低 3-7 倍。如果这条路线继续走下去，"生成就是一次前向传播"这个自回归范式的基本假设可能会被动摇。
+</details>
+
+<details>
+<summary>Q: 做这份工作和你做 AI 产品有什么交叉？</summary>
+
+直接的交叉：跟踪前沿让我在做产品决策时有更好的时间窗口判断。天权一代用 Qwen3 微调的时候我就知道 Qwen3.5 快出了，所以刻意把 pipeline 设计成模型可替换的。间接的交叉：写内参训练了一种"用非技术语言解释技术"的能力，这在和非技术背景的同事沟通产品方案时特别有用。
+</details>

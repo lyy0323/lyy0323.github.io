@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map(project => ({
+    params: { slug: project.id.replace(/\/index\.mdx?$/, '') },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const slug = project.id.replace(/\/index\.mdx?$/, '');
+
+const statusLabels: Record<string, string> = {
+  active: '● Active', archived: '○ Archived', wip: '◐ Work in Progress',
+};
+const statusColors: Record<string, string> = {
+  active: 'text-terminal-green', archived: 'text-terminal-muted', wip: 'text-terminal-amber',
+};
+const categoryIcons: Record<string, string> = {
+  website: '🌐', app: '📱', game: '🎮', data: '📊',
+  art: '🎨', agent: '🤖', tool: '🔧', other: '📦',
+};
+---
+
+<BaseLayout title={`${project.data.title} · Tech`} description={project.data.description}>
+  <main class="min-h-screen px-4 sm:px-6 py-12 sm:py-20 max-w-3xl mx-auto">
+    <div class="mb-8 text-xs text-terminal-muted">
+      <a href="/" class="link-glow">~</a>
+      <span class="mx-1">/</span>
+      <a href="/tech/" class="link-glow">tech</a>
+      <span class="mx-1">/</span>
+      <a href="/tech/" class="link-glow">projects</a>
+      <span class="mx-1">/</span>
+      <span class="text-terminal-text">{slug}</span>
+    </div>
+
+    <div class="terminal-window mb-8">
+      <div class="terminal-header">
+        <div class="terminal-dot bg-red-500"></div>
+        <div class="terminal-dot bg-yellow-500"></div>
+        <div class="terminal-dot bg-green-500"></div>
+        <span class="ml-3 text-xs text-terminal-muted">{slug}/index.mdx</span>
+      </div>
+      <div class="p-5 sm:p-6">
+        <div class="mb-4">
+          <span class="prompt-symbol">❯ </span>
+          <span class="cmd-text">cat index.mdx</span>
+        </div>
+
+        <div class="flex items-start gap-3 mb-4">
+          <span class="text-2xl">{categoryIcons[project.data.category] || '📦'}</span>
+          <div>
+            <h1 class="text-lg font-semibold text-terminal-amber font-lxgw">
+              {project.data.title}
+            </h1>
+            <p class="text-sm text-terminal-muted font-lxgw mt-1">
+              {project.data.description}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4 text-xs border-t border-terminal-border pt-4 mb-4">
+          <div>
+            <span class="text-terminal-muted">status: </span>
+            <span class={statusColors[project.data.status]}>{statusLabels[project.data.status]}</span>
+          </div>
+          <div>
+            <span class="text-terminal-muted">date: </span>
+            <span class="text-terminal-text">{project.data.date}</span>
+          </div>
+          <div>
+            <span class="text-terminal-muted">category: </span>
+            <span class="text-terminal-cyan">{project.data.category}</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          {project.data.tags.map((tag: string) => (
+            <span class="text-[10px] px-1.5 py-0.5 rounded border border-terminal-border bg-terminal-bg text-terminal-cyan/70">
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {(project.data.url || project.data.repo) && (
+          <div class="flex flex-wrap gap-3 border-t border-terminal-border pt-4">
+            {project.data.url && (
+              <a href={project.data.url} target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded border border-terminal-green/40
+                  bg-terminal-green/10 text-terminal-green text-sm font-semibold
+                  hover:bg-terminal-green/20 hover:border-terminal-green/60 transition-all duration-200">
+                <span>↗</span> Live Site
+              </a>
+            )}
+            {project.data.repo && (
+              <a href={project.data.repo} target="_blank" rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded border border-terminal-border
+                  text-terminal-cyan text-sm hover:border-terminal-cyan/40 hover:bg-terminal-cyan/5 transition-all duration-200">
+                <span>↗</span> Source Code
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div class="terminal-window">
+      <div class="terminal-header">
+        <div class="terminal-dot bg-red-500"></div>
+        <div class="terminal-dot bg-yellow-500"></div>
+        <div class="terminal-dot bg-green-500"></div>
+        <span class="ml-3 text-xs text-terminal-muted">README.md</span>
+      </div>
+      <div class="p-5 sm:p-6 prose prose-invert prose-sm max-w-none
+        prose-headings:text-terminal-amber prose-headings:font-lxgw prose-headings:font-semibold
+        prose-p:text-terminal-text prose-p:font-lxgw prose-p:leading-relaxed
+        prose-strong:text-terminal-green
+        prose-a:text-terminal-cyan prose-a:no-underline hover:prose-a:text-terminal-green
+        prose-li:text-terminal-text prose-li:font-lxgw
+        prose-code:text-terminal-pink prose-code:bg-terminal-bg prose-code:px-1 prose-code:rounded
+        prose-hr:border-terminal-border">
+        <Content />
+      </div>
+    </div>
+
+    <div class="mt-8 text-xs text-terminal-muted">
+      <span class="prompt-symbol">❯ </span>
+      <span class="cmd-text">cd ..</span>
+      <span class="mx-2">·</span>
+      <a href="/tech/" class="link-glow">← back to tech</a>
+    </div>
+  </main>
+</BaseLayout>

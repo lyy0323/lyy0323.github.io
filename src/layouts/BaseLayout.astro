@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+import InteractiveTerminal from '../components/InteractiveTerminal.tsx';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = '林雨夜 | Terminal', description = 'AI Product Manager & Digital Creator' } = Astro.props;
+
+const allProjects = await getCollection('projects');
+const projectData = allProjects.map(p => ({
+  slug: p.id.replace(/\/index\.mdx?$/, ''),
+  title: p.data.title,
+  description: p.data.description,
+  category: p.data.category,
+  tags: p.data.tags,
+  status: p.data.status,
+  date: p.data.date,
+  url: p.data.url,
+  repo: p.data.repo,
+}));
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="grid-bg scanline pb-12">
+  <slot />
+  <InteractiveTerminal client:load projects={projectData} />
+</body>
+</html>
