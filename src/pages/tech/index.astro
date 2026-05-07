@@ -22,6 +22,7 @@ const items = [
     slug: extractSlug(p.id),
     type: 'project' as const,
     featured: p.data.featured,
+    pinned: p.data.pinned,
     order: p.data.order,
   })),
   ...allBlogs.map(b => ({
@@ -33,6 +34,7 @@ const items = [
     slug: extractSlug(b.id),
     type: 'blog' as const,
     featured: b.data.featured,
+    pinned: b.data.pinned,
     order: b.data.order,
   })),
   ...allApps.map(a => ({
@@ -44,6 +46,7 @@ const items = [
     slug: extractSlug(a.id),
     type: 'app' as const,
     featured: a.data.featured,
+    pinned: a.data.pinned,
     order: a.data.order,
   })),
 ];

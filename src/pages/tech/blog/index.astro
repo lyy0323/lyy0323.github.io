@@ -12,9 +12,9 @@ function extractSlug(id: string) {
 }
 
 const items = [
-  ...allProjects.map(p => ({ title: p.data.title, description: p.data.description, category: p.data.category, tags: p.data.tags, status: p.data.status, date: p.data.date, slug: extractSlug(p.id), type: 'project' as const, featured: p.data.featured, order: p.data.order })),
-  ...allBlogs.map(b => ({ title: b.data.title, description: b.data.description, tags: b.data.tags, status: b.data.status, date: b.data.date, slug: extractSlug(b.id), type: 'blog' as const, featured: b.data.featured, order: b.data.order })),
-  ...allApps.map(a => ({ title: a.data.title, description: a.data.description, tags: a.data.tags, status: a.data.status, date: a.data.date, slug: extractSlug(a.id), type: 'app' as const, featured: a.data.featured, order: a.data.order })),
+  ...allProjects.map(p => ({ title: p.data.title, description: p.data.description, category: p.data.category, tags: p.data.tags, status: p.data.status, date: p.data.date, slug: extractSlug(p.id), type: 'project' as const, featured: p.data.featured, pinned: p.data.pinned, order: p.data.order })),
+  ...allBlogs.map(b => ({ title: b.data.title, description: b.data.description, tags: b.data.tags, status: b.data.status, date: b.data.date, slug: extractSlug(b.id), type: 'blog' as const, featured: b.data.featured, pinned: b.data.pinned, order: b.data.order })),
+  ...allApps.map(a => ({ title: a.data.title, description: a.data.description, tags: a.data.tags, status: a.data.status, date: a.data.date, slug: extractSlug(a.id), type: 'app' as const, featured: a.data.featured, pinned: a.data.pinned, order: a.data.order })),
 ];
 
 const blogCount = allBlogs.length;

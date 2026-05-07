@@ -10,6 +10,7 @@ interface ContentCardProps {
   slug: string;
   type: 'project' | 'blog' | 'app';
   featured?: boolean;
+  pinned?: boolean;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -36,7 +37,7 @@ const typeRoutes: Record<string, string> = {
 };
 
 export default function ContentCard({
-  title, description, category, tags, status, date, slug, type, featured,
+  title, description, category, tags, status, date, slug, type, featured, pinned,
 }: ContentCardProps) {
   const [hovered, setHovered] = useState(false);
   const href = `${typeRoutes[type]}${slug}/`;
@@ -46,9 +47,11 @@ export default function ContentCard({
     <a
       href={href}
       className={`group block p-5 rounded-lg border transition-all duration-300
-        ${featured
-          ? 'border-terminal-green/30 bg-terminal-surface hover:border-terminal-green/60'
-          : 'border-terminal-border bg-terminal-bg hover:border-terminal-cyan/40'}
+        ${pinned
+          ? 'border-terminal-pink/30 bg-terminal-surface hover:border-terminal-pink/60'
+          : featured
+            ? 'border-terminal-green/30 bg-terminal-surface hover:border-terminal-green/60'
+            : 'border-terminal-border bg-terminal-bg hover:border-terminal-cyan/40'}
         hover:shadow-[0_0_30px_rgba(85,153,119,0.06)] hover:-translate-y-0.5`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -62,6 +65,11 @@ export default function ContentCard({
           </h3>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
+          {pinned && (
+            <span className="text-[9px] px-1 py-0.5 rounded border border-terminal-pink/30 bg-terminal-pink/10 text-terminal-pink">
+              pinned
+            </span>
+          )}
           <span className="text-[9px] px-1 py-0.5 rounded border border-terminal-border text-terminal-muted">
             {type}
           </span>
@@ -84,7 +92,7 @@ export default function ContentCard({
           </span>
         ))}
         {tags.length > 4 && (
-          <span className="text-[10px] text-terminal-muted">+{tags.length - 4}</span>
+          <span className="text-[10px] text-terminal-muted self-center">+{tags.length - 4}</span>
         )}
       </div>
 

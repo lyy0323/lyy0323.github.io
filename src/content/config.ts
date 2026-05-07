@@ -10,6 +10,7 @@ const baseFields = {
   status: z.enum(['active', 'archived', 'wip']).default('active'),
   date: z.string(),
   featured: z.boolean().default(false),
+  pinned: z.boolean().default(false),
   order: z.number().default(0),
 };
 

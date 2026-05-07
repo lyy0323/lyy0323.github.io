@@ -13,6 +13,7 @@ interface ContentItem {
   slug: string;
   type: 'project' | 'blog' | 'app';
   featured?: boolean;
+  pinned?: boolean;
   order: number;
 }
 
@@ -55,7 +56,11 @@ export default function ContentGallery({ items, defaultType = 'all' }: Props) {
     if (activeCategory !== 'all' && (activeType === 'all' || activeType === 'project')) {
       list = list.filter(i => i.category === activeCategory);
     }
-    return list.sort((a, b) => a.order - b.order);
+    return list.sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return b.date.localeCompare(a.date);
+    });
   }, [items, activeType, activeCategory]);
 
   const showCategoryFilter = activeType === 'all' || activeType === 'project';
@@ -93,7 +98,7 @@ export default function ContentGallery({ items, defaultType = 'all' }: Props) {
       )}
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {filtered.map((item) => (
           <ContentCard key={`${item.type}-${item.slug}`} {...item} />
         ))}

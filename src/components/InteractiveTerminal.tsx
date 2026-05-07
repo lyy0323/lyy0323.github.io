@@ -67,6 +67,7 @@ function buildFs(projects: ProjectMeta[]) {
       { name: 'writing/', isDir: true, size: 4096, date: 'Feb 15' },
       { name: 'geo/', isDir: true, size: 4096, date: 'Feb 15' },
       { name: 'tech/', isDir: true, size: 4096, date: 'May 06' },
+      { name: 'image/', isDir: true, size: 4096, date: 'May 07' },
     ],
     '/tech/': [
       { name: 'projects/', isDir: true, size: 4096, date: 'May 06' },
@@ -88,7 +89,7 @@ function buildFs(projects: ProjectMeta[]) {
 function buildDirs(fs: Record<string, FsEntry[]>, projects: ProjectMeta[]) {
   const dirs = new Set(Object.keys(fs));
   for (const p of projects) dirs.add(`/tech/projects/${p.slug}/`);
-  dirs.add('/writing/'); dirs.add('/geo/');
+  dirs.add('/writing/'); dirs.add('/geo/'); dirs.add('/image/');
   return dirs;
 }
 
@@ -169,8 +170,7 @@ const HELP_TEXT = `Available commands:
     date        neofetch        clear        help
 
   Operators
-    cmd1 | cmd2         Pipe output to next command
-    cmd1 && cmd2        Run cmd2 only if cmd1 succeeds`;
+    cmd1 | cmd2         Pipe output to next command`;
 
 function getNeofetch(projectCount: number) {
   return `        ██╗   ██╗     yuye@lyy0323.space
@@ -266,6 +266,11 @@ function executeCommand(input: string, cwd: string, ctx: FsCtx, piped?: { expand
       if (arg === 'index.mdx') return { output: ['cd: not a directory: index.mdx'], error: true };
       const dest = resolve(cwd, arg);
       if (dest === cwd) return { output: [] };
+      const blockedDirs: Record<string, string> = {
+        '/geo/': 'cd: geo/: 施工中……预计 2027 年开通',
+        '/image/': 'cd: image/: 图像传输中，暂不可访问',
+      };
+      if (blockedDirs[dest]) return { output: [blockedDirs[dest]], error: true };
       if (isDir(ctx, dest)) return { output: [`→ ${dest}`], navigate: dest };
       const asFile = dest.replace(/\/$/, '');
       if (isFile(ctx, cwd, asFile.split('/').pop() || '')) return { output: [`cd: not a directory: ${arg}`], error: true };
@@ -500,16 +505,9 @@ export default function InteractiveTerminal({ projects }: { projects: ProjectMet
 
   const handleSubmit = useCallback(() => {
     if (!input.trim()) return;
-    const andParts = input.split('&&').map(s => s.trim()).filter(Boolean);
-    let allOutput: string[] = [];
-    let nav: string | undefined;
-
-    for (const seg of andParts) {
-      const r = runSegment(seg);
-      allOutput = [...allOutput, ...r.output];
-      if (r.navigate) nav = r.navigate;
-      if (r.error) break;
-    }
+    const r = runSegment(input.trim());
+    const allOutput = r.output;
+    const nav = r.navigate;
 
     if (allOutput.length === 1 && allOutput[0] === '__CLEAR__') {
       setHistory([]); setInput('');
