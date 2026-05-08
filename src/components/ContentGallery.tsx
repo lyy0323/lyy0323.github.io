@@ -38,6 +38,7 @@ export default function ContentGallery({ items, defaultType = 'all' }: Props) {
 
   const availableTypes = useMemo(() => {
     const types = new Set(items.map(i => i.type));
+    types.add('app');
     return ['all' as const, ...Array.from(types)] as ContentType[];
   }, [items]);
 
@@ -49,7 +50,7 @@ export default function ContentGallery({ items, defaultType = 'all' }: Props) {
   }, [items]);
 
   const filtered = useMemo(() => {
-    let list = items;
+    let list = items.filter(i => i.type !== 'app');
     if (activeType !== 'all') {
       list = list.filter(i => i.type === activeType);
     }
@@ -71,13 +72,25 @@ export default function ContentGallery({ items, defaultType = 'all' }: Props) {
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="text-terminal-muted text-xs mr-1 self-center">type:</span>
         {availableTypes.map((t) => (
-          <button key={t} onClick={() => { setActiveType(t); setActiveCategory('all'); }}
-            className={`text-xs px-2.5 py-1 rounded border transition-all duration-200
-              ${activeType === t
-                ? 'border-terminal-green/50 bg-terminal-green/10 text-terminal-green'
-                : 'border-terminal-border bg-terminal-bg text-terminal-muted hover:border-terminal-cyan/30 hover:text-terminal-cyan'}`}>
-            {typeLabels[t] || t}
-          </button>
+          t === 'app' ? (
+            <a key={t} href="/tech/app/"
+              className="text-xs px-2.5 py-1 rounded border transition-all duration-200
+                border-terminal-border bg-terminal-bg text-terminal-muted hover:border-terminal-purple/40 hover:text-terminal-purple
+                inline-flex items-center gap-1">
+              {typeLabels[t]}
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="opacity-60">
+                <path d="M3.5 2H10V8.5M10 2L2 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
+          ) : (
+            <button key={t} onClick={() => { setActiveType(t); setActiveCategory('all'); }}
+              className={`text-xs px-2.5 py-1 rounded border transition-all duration-200
+                ${activeType === t
+                  ? 'border-terminal-green/50 bg-terminal-green/10 text-terminal-green'
+                  : 'border-terminal-border bg-terminal-bg text-terminal-muted hover:border-terminal-cyan/30 hover:text-terminal-cyan'}`}>
+              {typeLabels[t] || t}
+            </button>
+          )
         ))}
       </div>
 

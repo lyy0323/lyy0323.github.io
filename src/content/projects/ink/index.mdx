@@ -1,0 +1,80 @@
+---
+title: Ink · 水墨诗集排版系统
+description: 纯 CSS 程序化生成水墨画背景，搭配自研 InkScript 标记语言，在浏览器里排版精美的 A5 诗集页面。零依赖，写完直接 Ctrl+P 导出 PDF。
+category: tool
+tags: ['CSS', 'SVG', 'DSL', '排版', '诗词']
+url: 'https://lyy0323.space/ink/'
+repo: 'https://github.com/lyy0323/ink'
+status: active
+date: '2026-03'
+featured: true
+order: 3
+---
+
+## 这个项目是什么
+
+Ink 是一个浏览器端的中文诗集排版工具。你用纯文本 InkScript 脚本描述版式——封面、诗页、合集——它会渲染出带有程序化水墨背景的 A5 书页，直接打印或导出 PDF。零构建、零安装、零依赖，一个 HTML 文件就是全部。
+
+## 为什么做这个
+
+给国学社排诗集。需求很明确：要水墨风格的页面背景，但不能喧宾夺主，得衬托诗文本身。问题是版权——随便拿水墨画素材是不行的。
+
+于是给 AI 提了个约束：必须用纯 CSS 实现水墨效果。结果出来的东西超出预期——SVG 滤镜链（feTurbulence → feDisplacementMap → feGaussianBlur → feComponentTransfer）把简单的径向渐变扭曲成有机的水墨形状，再用 mix-blend-mode: multiply 叠合，效果非常自然。而且因为是程序化生成的，每一页的水墨都不同，却又可以通过种子复现。
+
+## 水墨引擎的工作原理
+
+渲染流程：
+
+1. 种子 PRNG（线性同余）生成 8-12 个墨点，随机分配大小、位置、颜色和旋转角度
+2. 墨点用 CSS `radial-gradient` 渲染，通过 `mix-blend-mode: multiply` 叠合
+3. SVG 滤镜链把圆形墨点扭曲成有机的水墨形态
+4. FilterManager 去重 SVG 定义——相同种子不重复创建 DOM 节点
+5. CSS `@keyframes ink-breathe` 提供微妙的呼吸动画
+
+一个比较精巧的 feature 是跨页水墨：相邻两页共享同一个 seed，渲染 200% 宽的画面，各取一半，形成横跨书脊的连续水墨效果。翻开诗集的时候，左右页的水墨是衔接的。
+
+## InkScript
+
+社团里大部分同学不写代码，所以排版语言的设计目标是"像写信一样写配置"。InkScript 是一个极简的纯文本 DSL，用 `===` 分隔页面，用中文字段名描述属性：
+
+```
+名称: 晚枫集
+作者: 林雨夜
+
+===
+类型: cover
+标题: 晚枫集
+副标题: 林雨夜 著
+主题: ochre
+
+===
+标题: 偶得
+日期: 二〇二五 · 夏
+正文:
+代码如诗行行写，
+逻辑似水细细流。
+```
+
+支持 6 套水墨配色主题（黑灰、花青、赭石、桃源、竹韵、极光）、竖排文字、紧凑模式（词和散文）、序言与脚注，以及通过诗歌 ID 引用南洋吟游的数据库，不用重复输入诗文内容。
+
+## 目前的状态
+
+功能基本稳定，已经产出过 PDF 诗集，还没有实际印刷。水墨引擎是独立组件（ink.js + ink.css），可以在任意项目里复用。
+
+<details>
+<summary>这算不算"用 AI 写代码"？</summary>
+
+水墨引擎的核心思路——用 SVG 滤镜链把 CSS 渐变变成水墨效果——确实是 AI 给出的方案。但"必须纯 CSS 实现、不能用图片素材"这个约束是人提的，"要能做背景不喧宾夺主"这个审美判断也是人做的。工具帮你生成可能性，但哪个可能性值得追，还是得自己判断。
+</details>
+
+<details>
+<summary>为什么不用 LaTeX 或者 InDesign？</summary>
+
+LaTeX 排中文诗集痛苦指数很高，CJK 竖排、混排、自定义版式都是坑。InDesign 功能强大但学习曲线陡，而且社员不可能每个人都装一个。Ink 的定位是"给写诗的人用的排版工具"——打开浏览器就能用，写完按 Ctrl+P 就能出 PDF，门槛尽可能低。
+</details>
+
+<details>
+<summary>跨页水墨是怎么实现的？</summary>
+
+两个 ink-container 共享同一个 seed，但一个设置 `data-split="left"`，一个设置 `data-split="right"`。引擎在两侧都渲染 200% 宽的画面，左页只显示左半边，右页只显示右半边。视觉上就是一幅水墨横跨书脊。
+</details>

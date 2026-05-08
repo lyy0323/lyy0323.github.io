@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>平水韵诗词上色器</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F8F2F5;
+      --card-bg: #fff;
+      --accent: #DDD4ED;
+      --accent-dark: #8e7b9b;
+      --text: #1c1917;
+      --text-secondary: #78716c;
+      --border: #e7e5e4;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+    .container { max-width: 860px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+    header h1 span {
+      background: linear-gradient(135deg, #a78bfa, #f472b6, #fb923c, #34d399);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    header p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; }
+    .input-section {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 1.5rem;
+    }
+    .input-section label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.6rem; font-weight: 500; }
+    textarea {
+      width: 100%; min-height: 140px; border: 2px solid var(--border); border-radius: 8px;
+      padding: 1rem; font-family: inherit; font-size: 1.1rem; line-height: 2; letter-spacing: 0.06em;
+      resize: vertical; outline: none; transition: border-color 0.2s; background: #fafaf9; color: var(--text);
+    }
+    textarea:focus { border-color: var(--accent-dark); }
+    textarea::placeholder { color: #b8b5b0; }
+    .btn-row { display: flex; gap: 0.8rem; justify-content: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 2rem; border: none; border-radius: 999px;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: all 0.25s; letter-spacing: 0.04em;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-dark), #7c5cbf);
+      color: #fff; box-shadow: 0 4px 14px rgba(142, 123, 155, 0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(142,123,155,0.45); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary { background: var(--card-bg); color: var(--text-secondary); border: 2px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent-dark); color: var(--text); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .result-section {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 2rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); min-height: 120px; position: relative;
+    }
+    .result-section .section-title {
+      font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.2rem;
+      font-weight: 500; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .result-placeholder { text-align: center; color: #c5c0bc; padding: 2.5rem 0; font-size: 0.95rem; }
+    .poem-display { line-height: 2.8; font-size: 1.5rem; letter-spacing: 0.12em; text-align: center; }
+    .poem-line { margin-bottom: 0.4rem; }
+    .char-box {
+      display: inline-block; position: relative; cursor: pointer;
+      transition: transform 0.15s; border-radius: 4px; padding: 0 2px;
+    }
+    .char-box:hover { transform: scale(1.25); z-index: 10; }
+    .tooltip {
+      display: none; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: rgba(28,25,23,0.92); color: #fff; padding: 0.5rem 0.75rem; border-radius: 8px;
+      font-size: 0.72rem; white-space: nowrap; z-index: 100; pointer-events: none;
+      line-height: 1.5; letter-spacing: 0; backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .tooltip::after {
+      content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent; border-top-color: rgba(28,25,23,0.92);
+    }
+    .char-box:hover .tooltip { display: block; }
+    .legend-section {
+      margin-top: 2rem; background: var(--card-bg); border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .legend-section summary { cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; user-select: none; outline: none; }
+    .legend-section summary:hover { color: var(--text); }
+    .legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px; margin-top: 1rem; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-secondary); padding: 3px 6px; border-radius: 6px; transition: background 0.15s; }
+    .legend-item:hover { background: #f5f5f4; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.08); }
+    .tone-label { font-size: 0.78rem; font-weight: 600; color: var(--text); padding: 0.6rem 0 0.3rem; grid-column: 1 / -1; border-bottom: 1px solid var(--border); margin-bottom: 0.2rem; }
+    .loading { text-align: center; padding: 2rem; color: var(--text-secondary); }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent-dark); border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 0.5rem; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .stats-bar { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-secondary); }
+    .stats-bar .stat { display: flex; align-items: center; gap: 0.3rem; }
+    .stats-bar .stat b { color: var(--text); font-weight: 600; }
+    footer { text-align: center; margin-top: 3rem; color: #b8b5b0; font-size: 0.8rem; letter-spacing: 0.02em; }
+    .example-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .chip { font-size: 0.78rem; padding: 0.3rem 0.8rem; border-radius: 999px; border: 1px solid var(--border); background: #fafaf9; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .chip:hover { border-color: var(--accent-dark); color: var(--accent-dark); background: #f5f0fa; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><span>平水韵</span>诗词上色器</h1>
+    <p>输入一首诗，按韵部为每个汉字着色 — 同韵同色，一目了然</p>
+  </header>
+
+  <div class="input-section">
+    <label>输入诗词文本</label>
+    <textarea id="poemInput" placeholder="春眠不觉晓，&#10;处处闻啼鸟。&#10;夜来风雨声，&#10;花落知多少。"></textarea>
+    <div class="example-chips">
+      <span style="font-size:0.78rem;color:#b8b5b0;line-height:2;">试试：</span>
+      <button class="chip" onclick="loadExample(0)">春晓</button>
+      <button class="chip" onclick="loadExample(1)">静夜思</button>
+      <button class="chip" onclick="loadExample(2)">登鹳雀楼</button>
+      <button class="chip" onclick="loadExample(3)">枫桥夜泊</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" id="renderBtn" onclick="renderPoem()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="15.5" r="2.5"/><circle cx="8.5" cy="15.5" r="2.5"/><line x1="13.5" y1="9" x2="17.1" y2="13.2"/><line x1="13.5" y1="9" x2="9.9" y2="13.2"/></svg>
+      渲 染 上 色
+    </button>
+    <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+  </div>
+
+  <div class="result-section">
+    <div class="section-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      渲染结果
+    </div>
+    <div id="resultArea">
+      <div class="result-placeholder" id="placeholder">在上方输入文本，点击「渲染上色」查看效果</div>
+    </div>
+  </div>
+
+  <details class="legend-section">
+    <summary id="legendSummary">查看韵部色彩图例（106 韵）</summary>
+    <div id="legendGrid" class="legend-grid"></div>
+  </details>
+
+  <footer>平水韵诗词上色器 — 基于平水韵 106 韵部 HSL 色彩映射 · 数据来源 <a href="https://checker.sjtuguoxue.space" target="_blank" style="color:#8e7b9b;">方寸格律 API</a></footer>
+</div>
+
+<script>
+const RHYME_COLORS = [
+  {id:1,name:"一东",h:192,s:80,l:80},{id:2,name:"二冬",h:204,s:80,l:80},{id:3,name:"三江",h:36,s:80,l:80},{id:4,name:"四支",h:216,s:80,l:80},{id:5,name:"五微",h:228,s:80,l:80},{id:6,name:"六鱼",h:60,s:80,l:80},{id:7,name:"七虞",h:72,s:80,l:80},{id:8,name:"八齐",h:240,s:80,l:80},{id:9,name:"九佳",h:252,s:80,l:80},{id:10,name:"十灰",h:264,s:80,l:80},{id:11,name:"十一真",h:84,s:80,l:80},{id:12,name:"十二文",h:96,s:80,l:80},{id:13,name:"十三元",h:108,s:80,l:80},{id:14,name:"十四寒",h:120,s:80,l:80},{id:15,name:"十五删",h:132,s:80,l:80},{id:16,name:"一先",h:144,s:80,l:80},{id:17,name:"二萧",h:324,s:80,l:80},{id:18,name:"三肴",h:336,s:80,l:80},{id:19,name:"四豪",h:348,s:80,l:80},{id:20,name:"五歌",h:0,s:80,l:80},{id:21,name:"六麻",h:12,s:80,l:80},{id:22,name:"七阳",h:24,s:80,l:80},{id:23,name:"八庚",h:156,s:80,l:80},{id:24,name:"九青",h:168,s:80,l:80},{id:25,name:"十蒸",h:180,s:80,l:80},{id:26,name:"十一尤",h:48,s:80,l:80},{id:27,name:"十二侵",h:312,s:80,l:80},{id:28,name:"十三覃",h:300,s:80,l:80},{id:29,name:"十四盐",h:288,s:80,l:80},{id:30,name:"十五咸",h:276,s:80,l:80},
+  {id:31,name:"一董",h:192,s:80,l:20},{id:32,name:"二肿",h:204,s:80,l:20},{id:33,name:"三讲",h:36,s:80,l:20},{id:34,name:"四纸",h:216,s:80,l:20},{id:35,name:"五尾",h:228,s:80,l:20},{id:36,name:"六语",h:60,s:80,l:20},{id:37,name:"七麌",h:72,s:80,l:20},{id:38,name:"八荠",h:240,s:80,l:20},{id:39,name:"九蟹",h:252,s:80,l:20},{id:40,name:"十贿",h:264,s:80,l:20},{id:41,name:"十一轸",h:84,s:80,l:20},{id:42,name:"十二吻",h:96,s:80,l:20},{id:43,name:"十三阮",h:108,s:80,l:20},{id:44,name:"十四旱",h:120,s:80,l:20},{id:45,name:"十五潸",h:132,s:80,l:20},{id:46,name:"十六铣",h:144,s:80,l:20},{id:47,name:"十七筱",h:324,s:80,l:20},{id:48,name:"十八巧",h:336,s:80,l:20},{id:49,name:"十九皓",h:348,s:80,l:20},{id:50,name:"二十哿",h:0,s:80,l:20},{id:51,name:"二十一马",h:12,s:80,l:20},{id:52,name:"二十二养",h:24,s:80,l:20},{id:53,name:"二十三梗",h:156,s:80,l:20},{id:54,name:"二十四迥",h:180,s:80,l:20},{id:55,name:"二十五有",h:48,s:80,l:20},{id:56,name:"二十六寝",h:312,s:80,l:20},{id:57,name:"二十七感",h:300,s:80,l:20},{id:58,name:"二十八俭",h:288,s:80,l:20},{id:59,name:"二十九豏",h:276,s:80,l:20},
+  {id:60,name:"一送",h:192,s:80,l:30},{id:61,name:"二宋",h:204,s:80,l:30},{id:62,name:"三绛",h:36,s:80,l:30},{id:63,name:"四寘",h:216,s:80,l:30},{id:64,name:"五未",h:228,s:80,l:30},{id:65,name:"六御",h:60,s:80,l:30},{id:66,name:"七遇",h:72,s:80,l:30},{id:67,name:"八霁",h:240,s:80,l:30},{id:68,name:"九泰",h:252,s:80,l:30},{id:69,name:"十卦",h:264,s:80,l:30},{id:70,name:"十一队",h:84,s:80,l:30},{id:71,name:"十二震",h:96,s:80,l:30},{id:72,name:"十三问",h:108,s:80,l:30},{id:73,name:"十四愿",h:120,s:80,l:30},{id:74,name:"十五翰",h:132,s:80,l:30},{id:75,name:"十六谏",h:144,s:80,l:30},{id:76,name:"十七霰",h:324,s:80,l:30},{id:77,name:"十八啸",h:336,s:80,l:30},{id:78,name:"十九效",h:348,s:80,l:30},{id:79,name:"二十号",h:0,s:80,l:30},{id:80,name:"二十一个",h:12,s:80,l:30},{id:81,name:"二十二祃",h:24,s:80,l:30},{id:82,name:"二十三漾",h:156,s:80,l:30},{id:83,name:"二十四敬",h:168,s:80,l:30},{id:84,name:"二十五径",h:180,s:80,l:30},{id:85,name:"二十六宥",h:48,s:80,l:30},{id:86,name:"二十七沁",h:312,s:80,l:30},{id:87,name:"二十八勘",h:300,s:80,l:30},{id:88,name:"二十九艳",h:288,s:80,l:30},{id:89,name:"三十陷",h:276,s:80,l:30},
+  {id:90,name:"一屋",h:192,s:30,l:20},{id:91,name:"二沃",h:204,s:30,l:20},{id:92,name:"三觉",h:36,s:30,l:20},{id:93,name:"四质",h:84,s:30,l:20},{id:94,name:"五物",h:96,s:30,l:20},{id:95,name:"六月",h:108,s:30,l:20},{id:96,name:"七曷",h:120,s:30,l:20},{id:97,name:"八黠",h:132,s:30,l:20},{id:98,name:"九屑",h:144,s:30,l:20},{id:99,name:"十药",h:24,s:30,l:20},{id:100,name:"十一陌",h:156,s:30,l:20},{id:101,name:"十二锡",h:168,s:30,l:20},{id:102,name:"十三职",h:180,s:30,l:20},{id:103,name:"十四缉",h:312,s:30,l:20},{id:104,name:"十五合",h:300,s:30,l:20},{id:105,name:"十六叶",h:288,s:30,l:20},{id:106,name:"十七洽",h:276,s:30,l:20}
+];
+
+const rhymeColorMap = {};
+for (const r of RHYME_COLORS) rhymeColorMap[r.name] = { h: r.h, s: r.s, l: r.l };
+
+const API_BASE = 'https://checker.sjtuguoxue.space';
+const charCache = {};
+
+async function lookupChars(chars) {
+  const unique = [...new Set(chars)].filter(ch => !(ch in charCache));
+  if (unique.length === 0) return;
+  for (let i = 0; i < unique.length; i += 200) {
+    const batch = unique.slice(i, i + 200);
+    try {
+      const resp = await fetch(`${API_BASE}/api/char/batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chars: batch, book: 'Pingshuiyun' })
+      });
+      if (!resp.ok) { batch.forEach(ch => charCache[ch] = null); continue; }
+      const results = await resp.json();
+      for (const item of results) {
+        charCache[item.char] = {
+          rhymes: item.rhyme_categories ? item.rhyme_categories.map(r => r.name) : [],
+          tones: item.tones || []
+        };
+      }
+    } catch (e) {
+      batch.forEach(ch => charCache[ch] = null);
+    }
+  }
+}
+
+function circularMeanDeg(angles) {
+  if (angles.length <= 1) return angles[0] || 0;
+  let sinSum = 0, cosSum = 0;
+  for (const a of angles) { const r = a * Math.PI / 180; sinSum += Math.sin(r); cosSum += Math.cos(r); }
+  let mean = Math.atan2(sinSum / angles.length, cosSum / angles.length) * 180 / Math.PI;
+  return Math.round(mean < 0 ? mean + 360 : mean);
+}
+
+function arithmeticMean(arr) {
+  return arr.length === 0 ? 0 : Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
+}
+
+function getCharColor(ch) {
+  const info = charCache[ch];
+  if (!info || !info.rhymes || info.rhymes.length === 0) return null;
+  const colors = [];
+  for (const name of info.rhymes) {
+    if (rhymeColorMap[name]) colors.push(rhymeColorMap[name]);
+  }
+  if (colors.length === 0) return null;
+  if (colors.length === 1) return { h: colors[0].h, s: colors[0].s, l: colors[0].l, rhymes: info.rhymes, tones: info.tones };
+  return {
+    h: circularMeanDeg(colors.map(c => c.h)),
+    s: arithmeticMean(colors.map(c => c.s)),
+    l: arithmeticMean(colors.map(c => c.l)),
+    rhymes: info.rhymes, tones: info.tones
+  };
+}
+
+const EXAMPLES = [
+  "春眠不觉晓，\n处处闻啼鸟。\n夜来风雨声，\n花落知多少。",
+  "床前明月光，\n疑是地上霜。\n举头望明月，\n低头思故乡。",
+  "白日依山尽，\n黄河入海流。\n欲穷千里目，\n更上一层楼。",
+  "月落乌啼霜满天，\n江枫渔火对愁眠。\n姑苏城外寒山寺，\n夜半钟声到客船。"
+];
+
+function loadExample(idx) { document.getElementById('poemInput').value = EXAMPLES[idx]; }
+
+const PUNCT_RE = /[\s，。！？、；：""''（）《》【】·—…\.,!?\-;:'"()\[\]{}<>\/\\@#$%^&*_+=~`|]/;
+
+async function renderPoem() {
+  const text = document.getElementById('poemInput').value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('renderBtn');
+  const resultArea = document.getElementById('resultArea');
+  btn.disabled = true;
+  resultArea.innerHTML = '<div class="loading"><span class="spinner"></span>正在查询韵部数据…</div>';
+
+  const hanzi = [...text].filter(ch => !PUNCT_RE.test(ch));
+  await lookupChars(hanzi);
+
+  let totalChars = 0, matchedChars = 0, unmatchedChars = 0;
+  const rhymeUsed = new Set();
+  const lines = text.split(/\n/);
+  let html = '<div class="stats-bar" id="statsBar"></div><div class="poem-display">';
+
+  for (const line of lines) {
+    if (line.trim() === '') { html += '<div class="poem-line" style="height:1.2em;"></div>'; continue; }
+    html += '<div class="poem-line">';
+    for (const ch of line) {
+      if (PUNCT_RE.test(ch)) { html += `<span style="color:#999;letter-spacing:0.15em;">${ch}</span>`; continue; }
+      totalChars++;
+      const color = getCharColor(ch);
+      if (color) {
+        matchedChars++;
+        color.rhymes.forEach(r => rhymeUsed.add(r));
+        const hsl = `hsl(${color.h}, ${color.s}%, ${color.l}%)`;
+        const ts = color.l > 50
+          ? `0 0 8px hsla(${color.h}, ${color.s}%, ${color.l}%, 0.4)`
+          : `0 0 6px hsla(${color.h}, ${color.s}%, ${Math.min(color.l + 30, 90)}%, 0.5)`;
+        const tip = `<b style="font-size:1.1em">${ch}</b><br>韵部：${color.rhymes.join('、')}<br>声调：${color.tones.join('、')}<br>HSL(${color.h}, ${color.s}%, ${color.l}%)`;
+        html += `<span class="char-box" style="color:${hsl};text-shadow:${ts};font-weight:700;">${ch}<span class="tooltip">${tip}</span></span>`;
+      } else {
+        unmatchedChars++;
+        html += `<span class="char-box" style="color:#b8b5b0;">${ch}<span class="tooltip"><b>${ch}</b><br>未收录于字典</span></span>`;
+      }
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  resultArea.innerHTML = html;
+  document.getElementById('statsBar').innerHTML = `
+    <span class="stat">汉字总数 <b>${totalChars}</b></span>
+    <span class="stat">已匹配 <b>${matchedChars}</b></span>
+    <span class="stat">未收录 <b>${unmatchedChars}</b></span>
+    <span class="stat">涉及韵部 <b>${rhymeUsed.size}</b> 个</span>`;
+  btn.disabled = false;
+}
+
+function clearAll() {
+  document.getElementById('poemInput').value = '';
+  document.getElementById('resultArea').innerHTML = '<div class="result-placeholder">在上方输入文本，点击「渲染上色」查看效果</div>';
+}
+
+function buildLegend() {
+  const grid = document.getElementById('legendGrid');
+  const groups = []; const gm = new Map();
+  for (const r of RHYME_COLORS) {
+    const k = `${r.s}_${r.l}`;
+    if (!gm.has(k)) { const g = { items: [] }; gm.set(k, g); groups.push(g); }
+    gm.get(k).items.push(r);
+  }
+  const labels = ['平声', '上声', '去声', '入声'];
+  let html = '';
+  groups.forEach((g, i) => {
+    html += `<div class="tone-label">${labels[i] || ''}（${g.items.length} 韵）</div>`;
+    for (const r of g.items) html += `<div class="legend-item"><span class="legend-dot" style="background:hsl(${r.h},${r.s}%,${r.l}%)"></span><span>${r.name}</span></div>`;
+  });
+  grid.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildLegend();
+  document.getElementById('poemInput').addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); renderPoem(); }
+  });
+});
+</script>
+
+</body>
+</html>

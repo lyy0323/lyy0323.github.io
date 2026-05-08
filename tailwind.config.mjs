@@ -26,6 +26,8 @@ export default {
         'fade-in': 'fadeIn 0.6s ease-out forwards',
         'slide-up': 'slideUp 0.6s ease-out forwards',
         'glow': 'glow 2s ease-in-out infinite alternate',
+        'app-open': 'appOpen 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards',
+        'app-close': 'appClose 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards',
       },
       keyframes: {
         blink: {
@@ -43,6 +45,14 @@ export default {
         glow: {
           from: { textShadow: '0 0 5px rgba(85, 153, 119, 0.3)' },
           to: { textShadow: '0 0 20px rgba(85, 153, 119, 0.5), 0 0 40px rgba(85, 153, 119, 0.15)' },
+        },
+        appOpen: {
+          from: { opacity: '0', transform: 'scale(0.85)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
+        appClose: {
+          from: { opacity: '1', transform: 'scale(1)' },
+          to: { opacity: '0', transform: 'scale(0.85)' },
         },
       },
     },

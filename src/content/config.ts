@@ -29,7 +29,11 @@ const blogs = defineCollection({
 
 const apps = defineCollection({
   type: 'content',
-  schema: z.object({ ...baseFields }),
+  schema: z.object({
+    ...baseFields,
+    icon: z.string().default('🚀'),
+    embed: z.string().optional(),
+  }),
 });
 
 export const collections = { projects, blogs, apps };

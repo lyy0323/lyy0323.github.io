@@ -37,21 +37,9 @@ const items = [
     pinned: b.data.pinned,
     order: b.data.order,
   })),
-  ...allApps.map(a => ({
-    title: a.data.title,
-    description: a.data.description,
-    tags: a.data.tags,
-    status: a.data.status,
-    date: a.data.date,
-    slug: extractSlug(a.id),
-    type: 'app' as const,
-    featured: a.data.featured,
-    pinned: a.data.pinned,
-    order: a.data.order,
-  })),
 ];
 
-const totalCount = items.length;
+const totalCount = allProjects.length + allBlogs.length + allApps.length;
 const projectCount = allProjects.length;
 const blogCount = allBlogs.length;
 const appCount = allApps.length;
