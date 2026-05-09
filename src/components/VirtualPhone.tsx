@@ -5,7 +5,17 @@ interface AppMeta {
   title: string;
   icon: string;
   embed: string;
+  folder?: string;
+  weight: number;
 }
+
+interface FolderData {
+  name: string;
+  apps: AppMeta[];
+  totalWeight: number;
+}
+
+type GridItem = { type: 'folder'; data: FolderData } | { type: 'app'; data: AppMeta };
 
 interface VirtualPhoneProps {
   apps: AppMeta[];
@@ -16,7 +26,7 @@ const PHONE_H = 844;
 const SCREEN_INSET = 10;
 const SCREEN_W = PHONE_W - SCREEN_INSET * 2;
 const SCREEN_R = 47;
-const APPS_PER_PAGE = 8;
+const ITEMS_PER_PAGE = 8;
 
 const DOCK_ICONS = [
   { icon: '📞', label: 'Phone' },
@@ -38,6 +48,7 @@ function formatDate(d: Date) {
 export default function VirtualPhone({ apps }: VirtualPhoneProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [openApp, setOpenApp] = useState<AppMeta | null>(null);
+  const [openFolder, setOpenFolder] = useState<FolderData | null>(null);
   const [appAnimState, setAppAnimState] = useState<'idle' | 'opening' | 'closing'>('idle');
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [phoneScale, setPhoneScale] = useState(1);
@@ -47,16 +58,39 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const totalPages = Math.max(1, Math.ceil(apps.length / APPS_PER_PAGE));
+  const gridItems = useMemo<GridItem[]>(() => {
+    const folderMap = new Map<string, AppMeta[]>();
+    const standalone: AppMeta[] = [];
+    for (const app of apps) {
+      if (app.folder) {
+        const list = folderMap.get(app.folder) || [];
+        list.push(app);
+        folderMap.set(app.folder, list);
+      } else {
+        standalone.push(app);
+      }
+    }
+    const folders: FolderData[] = [];
+    for (const [name, folderApps] of folderMap) {
+      folderApps.sort((a, b) => b.weight - a.weight);
+      folders.push({ name, apps: folderApps, totalWeight: folderApps.reduce((s, a) => s + a.weight, 0) });
+    }
+    folders.sort((a, b) => b.totalWeight - a.totalWeight);
+    standalone.sort((a, b) => b.weight - a.weight);
+    return [
+      ...folders.map(f => ({ type: 'folder' as const, data: f })),
+      ...standalone.map(a => ({ type: 'app' as const, data: a })),
+    ];
+  }, [apps]);
 
-  // Clock
+  const totalPages = Math.max(1, Math.ceil(gridItems.length / ITEMS_PER_PAGE));
+
   useEffect(() => {
     setCurrentTime(new Date());
     const id = setInterval(() => setCurrentTime(new Date()), 10000);
     return () => clearInterval(id);
   }, []);
 
-  // Auto-open app from ?open= query param
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const openSlug = params.get('open');
@@ -70,7 +104,6 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
     }
   }, [apps]);
 
-  // Responsive scaling
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -84,7 +117,6 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
     return () => obs.disconnect();
   }, []);
 
-  // Swipe handlers
   const handleDragStart = useCallback((clientX: number) => {
     if (totalPages <= 1) return;
     dragRef.current = { startX: clientX, currentX: clientX, isDragging: true, startTime: Date.now() };
@@ -116,6 +148,7 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
   }, [currentPage, totalPages]);
 
   const openAppHandler = useCallback((app: AppMeta) => {
+    setOpenFolder(null);
     setOpenApp(app);
     setAppAnimState('opening');
     setTimeout(() => setAppAnimState('idle'), 300);
@@ -132,35 +165,41 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
   const time = currentTime ? formatTime(currentTime) : '--:--';
   const date = currentTime ? formatDate(currentTime) : '';
 
+  const renderAppIcon = (app: AppMeta, onClick: () => void) => (
+    <button key={app.id} className="flex flex-col items-center gap-1.5" onClick={onClick}>
+      <div className="w-[60px] h-[60px] rounded-[14px] flex items-center justify-center text-[28px] transition-transform active:scale-90"
+        style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
+        {app.icon}
+      </div>
+      <span className="text-[11px] text-white/70 truncate w-[68px] text-center">{app.title}</span>
+    </button>
+  );
+
+  const renderFolderIcon = (folder: FolderData) => (
+    <button key={`folder-${folder.name}`} className="flex flex-col items-center gap-1.5"
+      onClick={() => setOpenFolder(folder)}>
+      <div className="w-[60px] h-[60px] rounded-[14px] p-[6px] grid grid-cols-2 grid-rows-2 gap-[3px] transition-transform active:scale-90"
+        style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
+        {folder.apps.slice(0, 4).map((app, i) => (
+          <div key={i} className="rounded-[4px] flex items-center justify-center text-[13px]"
+            style={{ background: 'rgba(255,255,255,0.1)' }}>
+            {app.icon}
+          </div>
+        ))}
+      </div>
+      <span className="text-[11px] text-white/70 truncate w-[68px] text-center">{folder.name}</span>
+    </button>
+  );
+
   return (
     <div ref={containerRef} className="w-full flex justify-center pb-4 relative z-10">
       <div style={{ width: PHONE_W * phoneScale, height: PHONE_H * phoneScale }}>
-        <div
-          className="relative"
-          style={{
-            width: PHONE_W,
-            height: PHONE_H,
-            transform: `scale(${phoneScale})`,
-            transformOrigin: 'top left',
-          }}
-        >
-        {/* Phone body */}
-        <div
-          className="absolute inset-0 rounded-[55px]"
-          style={{
-            background: 'linear-gradient(145deg, #1a1a22, #0e0e14)',
-            boxShadow: '0 0 0 1px #333340, 0 20px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.03)',
-          }}
-        >
-          {/* Screen */}
-          <div
-            className="absolute overflow-hidden flex flex-col"
-            style={{
-              inset: SCREEN_INSET,
-              borderRadius: SCREEN_R,
-              background: 'linear-gradient(180deg, #0c0c14 0%, #151520 40%, #0e0e18 100%)',
-            }}
-          >
+        <div className="relative" style={{ width: PHONE_W, height: PHONE_H, transform: `scale(${phoneScale})`, transformOrigin: 'top left' }}>
+        <div className="absolute inset-0 rounded-[55px]"
+          style={{ background: 'linear-gradient(145deg, #1a1a22, #0e0e14)', boxShadow: '0 0 0 1px #333340, 0 20px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.03)' }}>
+          <div className="absolute overflow-hidden flex flex-col"
+            style={{ inset: SCREEN_INSET, borderRadius: SCREEN_R, background: 'linear-gradient(180deg, #0c0c14 0%, #151520 40%, #0e0e18 100%)' }}>
+
             {/* Dynamic island */}
             <div className="absolute top-[12px] left-1/2 -translate-x-1/2 w-[126px] h-[37px] bg-black rounded-[20px] z-30 flex items-center justify-center">
               <div className="w-[10px] h-[10px] rounded-full bg-[#1a1a24] border border-[#2a2a34]" />
@@ -169,7 +208,6 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
             {/* ─── Homescreen ─── */}
             {!openApp && (
               <div className="flex flex-col h-full select-none">
-                {/* Status bar */}
                 <div className="h-[54px] flex items-end justify-between px-8 pb-1 shrink-0">
                   <span className="text-[14px] font-semibold text-white/90">{time}</span>
                   <div className="flex items-center gap-1.5">
@@ -178,15 +216,13 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
                   </div>
                 </div>
 
-                {/* Clock widget */}
                 <div className="flex flex-col items-center pt-6 pb-4 shrink-0">
                   <span className="text-[72px] font-light leading-none text-white/90 tracking-tight">{time}</span>
                   <span className="text-[16px] text-white/50 mt-1">{date}</span>
                 </div>
 
-                {/* App grid area - swipeable */}
-                <div
-                  className="flex-1 overflow-hidden relative"
+                {/* Grid area */}
+                <div className="flex-1 overflow-hidden relative"
                   onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
                   onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
                   onTouchEnd={handleDragEnd}
@@ -195,59 +231,32 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
                   onMouseUp={handleDragEnd}
                   onMouseLeave={handleDragEnd}
                 >
-                  <div
-                    ref={gridRef}
-                    className="flex h-full"
-                    style={{
-                      width: `${totalPages * SCREEN_W}px`,
-                      transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
-                      transform: `translateX(-${currentPage * SCREEN_W}px)`,
-                    }}
-                  >
+                  <div ref={gridRef} className="flex h-full"
+                    style={{ width: `${totalPages * SCREEN_W}px`, transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)', transform: `translateX(-${currentPage * SCREEN_W}px)` }}>
                     {Array.from({ length: totalPages }, (_, pi) => {
-                      const pageApps = apps.slice(pi * APPS_PER_PAGE, (pi + 1) * APPS_PER_PAGE);
+                      const pageItems = gridItems.slice(pi * ITEMS_PER_PAGE, (pi + 1) * ITEMS_PER_PAGE);
                       return (
-                        <div
-                          key={pi}
-                          className="grid grid-cols-4 gap-y-6 gap-x-2 px-6 pt-4 content-start"
-                          style={{ width: SCREEN_W, minWidth: SCREEN_W }}
-                        >
-                          {pageApps.map((app) => (
-                            <button
-                              key={app.id}
-                              className="flex flex-col items-center gap-1.5 group"
-                              onClick={() => openAppHandler(app)}
-                            >
-                              <div className="w-[60px] h-[60px] rounded-[14px] flex items-center justify-center text-[28px] transition-transform active:scale-90"
-                                style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}>
-                                {app.icon}
-                              </div>
-                              <span className="text-[11px] text-white/70 truncate w-[68px] text-center">
-                                {app.title}
-                              </span>
-                            </button>
-                          ))}
+                        <div key={pi} className="grid grid-cols-4 gap-y-6 gap-x-2 px-6 pt-4 content-start"
+                          style={{ width: SCREEN_W, minWidth: SCREEN_W }}>
+                          {pageItems.map((item) =>
+                            item.type === 'folder'
+                              ? renderFolderIcon(item.data)
+                              : renderAppIcon(item.data, () => openAppHandler(item.data))
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Page dots */}
                 {totalPages > 1 && (
                   <div className="flex justify-center gap-1.5 py-2 shrink-0">
                     {Array.from({ length: totalPages }, (_, i) => (
-                      <div
-                        key={i}
-                        className={`w-[6px] h-[6px] rounded-full transition-colors ${
-                          i === currentPage ? 'bg-white/80' : 'bg-white/20'
-                        }`}
-                      />
+                      <div key={i} className={`w-[6px] h-[6px] rounded-full transition-colors ${i === currentPage ? 'bg-white/80' : 'bg-white/20'}`} />
                     ))}
                   </div>
                 )}
 
-                {/* Dock */}
                 <div className="shrink-0 mx-3 mb-2 px-4 py-3 rounded-[26px] flex justify-around"
                   style={{ background: 'rgba(30,30,40,0.65)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                   {DOCK_ICONS.map((d) => (
@@ -258,22 +267,33 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
                   ))}
                 </div>
 
-                {/* Home indicator */}
                 <div className="flex justify-center pb-2 pt-1 shrink-0">
                   <div className="w-[134px] h-[5px] bg-white/15 rounded-full" />
                 </div>
+
+                {/* ─── Folder popup ─── */}
+                {openFolder && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center"
+                    style={{ borderRadius: SCREEN_R, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setOpenFolder(null); }}>
+                    <div className="w-[280px] rounded-[24px] p-5"
+                      style={{ background: 'rgba(40,40,50,0.85)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className="text-[15px] text-white/80 font-medium text-center mb-4">{openFolder.name}</div>
+                      <div className="grid grid-cols-3 gap-4 justify-items-center">
+                        {openFolder.apps.map((app) =>
+                          renderAppIcon(app, () => openAppHandler(app))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {/* ─── App view ─── */}
             {openApp && (
-              <div
-                className={`absolute inset-0 z-20 flex flex-col overflow-hidden ${
-                  appAnimState === 'opening' ? 'animate-app-open' : appAnimState === 'closing' ? 'animate-app-close' : ''
-                }`}
-                style={{ borderRadius: SCREEN_R, background: '#000' }}
-              >
-                {/* App header bar */}
+              <div className={`absolute inset-0 z-20 flex flex-col overflow-hidden ${appAnimState === 'opening' ? 'animate-app-open' : appAnimState === 'closing' ? 'animate-app-close' : ''}`}
+                style={{ borderRadius: SCREEN_R, background: '#000' }}>
                 <div className="h-[54px] flex items-end justify-between px-6 pb-2 shrink-0" style={{ background: 'rgba(0,0,0,0.85)' }}>
                   <button onClick={closeAppHandler} className="text-[14px] text-[#557799] active:opacity-50 flex items-center gap-0.5">
                     <span className="text-[18px]">{'‹'}</span> Home
@@ -281,24 +301,14 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
                   <span className="text-[12px] text-white/50 truncate max-w-[160px]">{openApp.title}</span>
                   <span className="text-[12px] text-white/40 w-[50px] text-right">{time}</span>
                 </div>
-
-                {/* Iframe */}
-                <iframe
-                  src={openApp.embed}
-                  className="flex-1 w-full border-0 bg-white"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                  title={openApp.title}
-                />
-
-                {/* Home indicator */}
+                <iframe src={openApp.embed} className="flex-1 w-full border-0 bg-white"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups" title={openApp.title} />
                 <div className="h-[28px] bg-black flex items-center justify-center shrink-0">
-                  <div
-                    className="w-[134px] h-[5px] bg-white/25 rounded-full cursor-pointer hover:bg-white/40 transition-colors"
-                    onClick={closeAppHandler}
-                  />
+                  <div className="w-[134px] h-[5px] bg-white/25 rounded-full cursor-pointer hover:bg-white/40 transition-colors" onClick={closeAppHandler} />
                 </div>
               </div>
             )}
+
             {/* ─── Not found alert ─── */}
             {notFoundSlug && (
               <div className="absolute inset-0 z-30 flex items-center justify-center" style={{ borderRadius: SCREEN_R, background: 'rgba(0,0,0,0.6)' }}>
@@ -306,10 +316,8 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
                   <div className="text-[40px] mb-3">🔍</div>
                   <div className="text-[15px] text-white/90 font-medium mb-1">App Not Found</div>
                   <div className="text-[13px] text-white/50 mb-5">"{notFoundSlug}" is not installed.</div>
-                  <button
-                    onClick={() => setNotFoundSlug(null)}
-                    className="w-full py-2.5 rounded-xl text-[15px] font-medium text-[#557799] bg-white/10 active:bg-white/20 transition-colors"
-                  >
+                  <button onClick={() => setNotFoundSlug(null)}
+                    className="w-full py-2.5 rounded-xl text-[15px] font-medium text-[#557799] bg-white/10 active:bg-white/20 transition-colors">
                     OK
                   </button>
                 </div>

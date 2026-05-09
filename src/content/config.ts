@@ -33,6 +33,8 @@ const apps = defineCollection({
     ...baseFields,
     icon: z.string().default('🚀'),
     embed: z.string().optional(),
+    folder: z.string().optional(),
+    weight: z.number().default(0),
   }),
 });
 
