@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>德国惠斯特 · 椰椰</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --table: #1c1c2e;
+  --table-dark: #141422;
+  --table-mid: #222238;
+  --table-text: rgba(255,255,255,.5);
+  --card-w: 52px;
+  --card-h: 76px;
+  --card-lg-w: 72px;
+  --card-lg-h: 103px;
+  --card-radius: 6px;
+  --red: #c41e3a;
+  --black: #1a1a2e;
+  --accent: #f0c040;
+  --card-back: #1a3a6e;
+  --card-back-pattern: #244a82;
+  --shadow: 0 2px 8px rgba(0,0,0,.3);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, "Helvetica Neue", "PingFang SC", sans-serif;
+  background: var(--table);
+  color: #eee;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ===== Screens ===== */
+.screen { display: none; width: 100%; height: 100%; position: absolute; inset: 0; }
+.screen.active { display: flex; }
+
+/* --- Start Screen --- */
+#start-screen {
+  flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  background: radial-gradient(ellipse at 50% 40%, var(--table-mid), var(--table-dark));
+}
+#start-screen h1 { font-size: 28px; font-weight: 700; letter-spacing: 2px; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+#start-screen .subtitle { font-size: 14px; color: var(--table-text); margin-top: -8px; }
+.start-card-deco {
+  display: flex; gap: 6px; margin: 4px 0;
+}
+.start-card-deco .mini-card {
+  width: 44px; height: 64px; border-radius: 5px; background: #fff; color: var(--red);
+  display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700;
+  box-shadow: var(--shadow); transform: rotate(var(--r));
+}
+.start-card-deco .mini-card:nth-child(2) { color: var(--black); }
+.start-card-deco .mini-card:nth-child(4) { color: var(--black); }
+
+.npc-avatar-start {
+  width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+  border: 3px solid var(--accent); box-shadow: 0 4px 20px rgba(0,0,0,.5);
+}
+.npc-greeting {
+  background: rgba(0,0,0,.35); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 14px;
+  padding: 12px 18px; font-size: 14px; line-height: 1.7;
+  color: #e8e8e8; max-width: 300px; text-align: center;
+  position: relative;
+}
+.npc-greeting::before {
+  content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg);
+  width: 12px; height: 12px; background: rgba(0,0,0,.35); border-left: 1px solid rgba(255,255,255,.1); border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.btn {
+  padding: 14px 48px; border-radius: 12px; border: none; font-size: 17px; font-weight: 600;
+  cursor: pointer; transition: all .15s; letter-spacing: 1px;
+}
+.btn-primary { background: var(--accent); color: var(--accent-text, #1a1a2e); box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+.btn-primary:active { transform: scale(.96); }
+.btn-secondary { background: rgba(255,255,255,.12); color: #ddd; }
+.btn-secondary:active { background: rgba(255,255,255,.2); }
+
+/* --- Game Screen --- */
+#game-screen {
+  flex-direction: column;
+  background: radial-gradient(ellipse at 50% 50%, var(--table-mid), var(--table-dark));
+  padding-top: var(--safe-top); padding-bottom: var(--safe-bottom);
+}
+
+/* Opponent area */
+.opponent-area {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 6px 12px 0;
+  flex-shrink: 0; position: relative;
+}
+.player-bar {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 4px 0; font-size: 13px;
+}
+.player-bar .avatar-img {
+  width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+  border: 1.5px solid rgba(255,255,255,.25);
+}
+.player-bar .avatar-initial {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,.15); display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.player-bar .name { font-weight: 600; flex: 1; }
+.player-bar .score-badge {
+  background: rgba(0,0,0,.25); padding: 2px 10px; border-radius: 10px; font-size: 12px;
+}
+.player-bar .turn-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #555; margin-right: 4px; transition: background .3s;
+}
+.player-bar .turn-dot.active {
+  background: var(--accent); box-shadow: 0 0 6px var(--accent-glow, var(--accent));
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--accent-glow, var(--accent)); }
+  50% { box-shadow: 0 0 12px var(--accent-glow, var(--accent)); }
+}
+
+/* NPC speech bubble in game */
+.npc-game-speech {
+  background: rgba(0,0,0,.45); backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+  padding: 5px 12px; font-size: 12px; line-height: 1.5;
+  color: #d0d0d0; max-width: 240px;
+  opacity: 0; transition: opacity .3s; pointer-events: none;
+  margin: 2px 0 0 36px; align-self: flex-start;
+}
+.npc-game-speech.show { opacity: 1; }
+
+.hand {
+  display: flex; justify-content: center; align-items: flex-end;
+  min-height: 56px; padding: 4px 0; position: relative;
+}
+.hand.opponent-hand { min-height: calc(var(--card-h) + 4px); align-items: flex-start; }
+
+/* Table area */
+.table-area {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  position: relative; overflow: hidden;
+}
+
+.play-zone {
+  display: flex; align-items: center; justify-content: center; gap: 32px;
+  min-height: var(--card-lg-h); position: relative;
+}
+.play-slot {
+  width: var(--card-lg-w); height: var(--card-lg-h);
+  border: 2px dashed rgba(255,255,255,.12); border-radius: var(--card-radius);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.play-slot .slot-label {
+  font-size: 10px; color: rgba(255,255,255,.25); position: absolute; bottom: -16px;
+}
+.play-slot .card { position: absolute; }
+
+.vs-badge {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.2);
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
+
+.stock-zone {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-top: 4px;
+}
+.stock-pile {
+  position: relative; width: var(--card-lg-w); height: var(--card-lg-h);
+}
+.stock-pile .card { position: absolute; }
+.stock-pile .pile-count {
+  position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: rgba(255,255,255,.4);
+}
+
+.game-info-panel {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  font-size: 12px; color: rgba(255,255,255,.6);
+}
+.game-info-panel .trump-info {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 6px;
+  background: rgba(255,255,255,.08); color: var(--accent); font-weight: 600;
+}
+.game-info-panel .phase-info {
+  padding: 3px 10px; border-radius: 6px;
+  background: rgba(255,255,255,.08);
+}
+
+/* Player area */
+.player-area {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 12px 6px;
+  flex-shrink: 0;
+}
+.player-hand-wrapper {
+  width: 100%; overflow-x: auto; overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; padding: 20px 0 2px;
+}
+.player-hand-wrapper::-webkit-scrollbar { display: none; }
+
+.hand.player-hand {
+  min-height: calc(var(--card-h) + 8px); padding-bottom: 4px;
+}
+
+/* ===== Cards ===== */
+.card {
+  width: var(--card-w); height: var(--card-h);
+  border-radius: var(--card-radius);
+  position: relative; flex-shrink: 0;
+  transition: transform .2s, box-shadow .2s, opacity .2s, margin .2s;
+  cursor: default;
+  transform-style: preserve-3d;
+  perspective: 600px;
+}
+.card.lg { width: var(--card-lg-w); height: var(--card-lg-h); }
+
+.card-face, .card-back-face {
+  position: absolute; inset: 0; border-radius: var(--card-radius);
+  backface-visibility: hidden;
+}
+
+/* Front face */
+.card-face {
+  background: #fff;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+  padding: 3px 5px;
+  overflow: hidden;
+}
+.card-face .corner {
+  display: flex; flex-direction: column; align-items: flex-start;
+  line-height: 1; font-weight: 700;
+}
+.card-face .corner .rank { font-size: 13px; }
+.card-face .corner .suit-small { font-size: 12px; }
+.card-face .corner-br { display: none; }
+.card-face .center-suit { display: none; }
+.card.lg .card-face .corner .rank { font-size: 17px; }
+.card.lg .card-face .corner .suit-small { font-size: 15px; }
+
+.card.red .card-face { color: var(--red); }
+.card.black .card-face { color: var(--black); }
+
+/* Back face */
+.card-back-face {
+  background: var(--card-back);
+  box-shadow: var(--shadow);
+  transform: rotateY(180deg);
+  overflow: hidden;
+}
+.card-back-face .back-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: var(--card-radius);
+  opacity: 0.45;
+}
+.card-back-face .back-overlay {
+  position: absolute; inset: 4px; border-radius: 3px;
+  border: 1.5px solid rgba(255,255,255,.2);
+  background: linear-gradient(135deg, rgba(0,0,0,.1), rgba(0,0,0,.3));
+}
+
+/* Card states */
+.card.face-down { transform: rotateY(180deg); }
+.card.face-down .card-face { pointer-events: none; }
+
+/* Hand card in opponent */
+.hand.opponent-hand .card {
+  margin: 0 -17px;
+}
+
+/* Hand card in player */
+.hand.player-hand .card {
+  margin: 0 -17px; cursor: pointer;
+}
+.hand.player-hand .card.playable:hover,
+.hand.player-hand .card.playable:active {
+  transform: translateY(-12px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  z-index: 10;
+}
+.hand.player-hand .card:not(.playable) {
+  opacity: .45; cursor: not-allowed;
+  filter: brightness(.8);
+}
+.hand.player-hand .card.selected {
+  transform: translateY(-16px);
+  box-shadow: 0 0 0 2px var(--accent-glow, var(--accent)), 0 8px 24px rgba(0,0,0,.5);
+  z-index: 11;
+}
+
+/* Stock pile stacking */
+.stock-pile .card:nth-child(2) { top: 1px; left: 1px; }
+.stock-pile .card:nth-child(3) { top: 2px; left: 0; }
+
+.card.fly-to-play {
+  transition: transform .35s ease, left .35s ease, top .35s ease;
+}
+
+/* ===== Phase Overlay ===== */
+.overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+}
+.overlay.active { display: flex; }
+.overlay-content {
+  text-align: center; padding: 32px; border-radius: 16px;
+  background: rgba(0,0,0,.65); border: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 12px 48px rgba(0,0,0,.5);
+  max-width: 320px;
+}
+.overlay-content h2 { font-size: 22px; margin-bottom: 8px; }
+.overlay-content p { font-size: 14px; color: rgba(255,255,255,.6); margin-bottom: 16px; line-height: 1.6; }
+.overlay-content .result-emoji { font-size: 48px; margin-bottom: 12px; }
+.overlay-content .score-display {
+  display: flex; justify-content: center; gap: 32px; margin: 16px 0;
+}
+.overlay-content .score-col { text-align: center; }
+.overlay-content .score-col .score-num { font-size: 36px; font-weight: 700; }
+.overlay-content .score-col .score-label { font-size: 12px; color: #aaa; margin-top: 4px; }
+.overlay-content .npc-overlay-avatar {
+  width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--accent); margin-bottom: 8px;
+}
+.overlay-content .npc-speech-final {
+  background: rgba(0,0,0,.3); border-radius: 10px;
+  padding: 8px 14px; font-size: 13px; color: #d0d0d0;
+  line-height: 1.6; margin: 12px 0 4px; max-width: 260px;
+  display: inline-block;
+}
+
+/* Message toast */
+.toast {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  padding: 10px 24px; border-radius: 10px;
+  background: rgba(0,0,0,.75); color: #fff; font-size: 15px; font-weight: 600;
+  z-index: 50; pointer-events: none;
+  opacity: 0; transition: opacity .3s;
+}
+.toast.show { opacity: 1; }
+
+/* Trick result indicator */
+.trick-result {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 13px; font-weight: 700; color: var(--accent);
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none; white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0,0,0,.6);
+}
+.trick-result.show { opacity: 1; }
+
+/* Suit must-follow hint */
+.must-follow-hint {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: rgba(255,255,255,.5); white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+/* History bar */
+.history-bar {
+  display: flex; gap: 3px; justify-content: center; margin-top: 4px; flex-wrap: wrap;
+  max-width: 100%;
+}
+.history-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.15);
+}
+.history-dot.won { background: var(--accent); }
+.history-dot.lost { background: #c41e3a; }
+.history-dot.phase2 { border: 1px solid rgba(255,255,255,.3); }
+
+/* Responsive */
+@media (max-width: 360px) {
+  :root { --card-w: 46px; --card-h: 67px; --card-lg-w: 62px; --card-lg-h: 90px; }
+  .hand.opponent-hand .card, .hand.player-hand .card { margin: 0 -16px; }
+}
+@media (min-width: 420px) {
+  :root { --card-w: 56px; --card-h: 82px; --card-lg-w: 76px; --card-lg-h: 110px; }
+  .hand.opponent-hand .card, .hand.player-hand .card { margin: 0 -16px; }
+}
+@media (min-height: 750px) {
+  .table-area { gap: 14px; }
+  .play-zone { gap: 48px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Start Screen ===== -->
+<div id="start-screen" class="screen active">
+  <img src="https://xingyeai-images-cdn.oss-cn-shanghai.aliyuncs.com/talkie-user-img/360253818130936/363424116675689.jpeg" alt="椰椰" class="npc-avatar-start">
+  <h1>德国惠斯特</h1>
+  <p class="subtitle">German Whist · 与 椰椰 对决</p>
+  <div class="start-card-deco">
+    <div class="mini-card" style="--r:-12deg">A♥</div>
+    <div class="mini-card" style="--r:-4deg">K♠</div>
+    <div class="mini-card" style="--r:4deg">Q♦</div>
+    <div class="mini-card" style="--r:12deg">J♣</div>
+  </div>
+  <div class="npc-greeting" id="greeting-bubble">（轻推纸牌，推了推眼镜）忙碌之余来场脑力对弈如何？这是德国惠斯特，规则严谨且充满博弈空间，要挑战一下我的逻辑吗？</div>
+  <button class="btn btn-primary" id="btn-start">开始游戏</button>
+</div>
+
+<!-- ===== Game Screen ===== -->
+<div id="game-screen" class="screen">
+  <!-- Opponent -->
+  <div class="opponent-area">
+    <div class="player-bar">
+      <span class="turn-dot" id="opp-turn-dot"></span>
+      <img src="https://xingyeai-images-cdn.oss-cn-shanghai.aliyuncs.com/talkie-user-img/360253818130936/363424116675689.jpeg" alt="" class="avatar-img" id="opp-avatar">
+      <span class="name" id="opp-name">椰椰</span>
+      <span class="score-badge" id="opp-score">0 墩</span>
+    </div>
+    <div class="npc-game-speech" id="npc-speech"></div>
+    <div class="hand opponent-hand" id="opp-hand"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-area">
+    <div class="play-zone" id="play-zone">
+      <div class="play-slot" id="opp-play-slot">
+        <span class="slot-label" id="opp-slot-label">椰椰</span>
+      </div>
+      <div class="play-slot" id="player-play-slot">
+        <span class="slot-label">你</span>
+      </div>
+      <div class="trick-result" id="trick-result"></div>
+    </div>
+
+    <div class="stock-zone" id="stock-zone">
+      <div class="stock-pile" id="draw-pile">
+        <span class="pile-count" id="pile-count"></span>
+      </div>
+      <div class="stock-pile" id="face-up-pile"></div>
+      <div class="game-info-panel">
+        <div class="trump-info" id="trump-info"></div>
+        <div class="phase-info" id="phase-info"></div>
+      </div>
+    </div>
+
+    <div class="history-bar" id="history-bar"></div>
+  </div>
+
+  <!-- Player -->
+  <div class="player-area">
+    <div class="player-hand-wrapper">
+      <div class="hand player-hand" id="player-hand" style="position:relative">
+        <span class="must-follow-hint" id="must-follow-hint"></span>
+      </div>
+    </div>
+    <div class="player-bar">
+      <span class="turn-dot" id="player-turn-dot"></span>
+      <span class="avatar-initial" id="player-avatar">你</span>
+      <span class="name" id="player-name">你</span>
+      <span class="score-badge" id="player-score">0 墩</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Overlays ===== -->
+<div class="overlay" id="overlay-phase">
+  <div class="overlay-content" id="overlay-phase-content"></div>
+</div>
+<div class="overlay" id="overlay-gameover">
+  <div class="overlay-content" id="overlay-gameover-content"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  NPC DATA (from AI generation)
+// ============================================================
+
+const NPC_NAME = "椰椰";
+const NPC_AVATAR = "https://xingyeai-images-cdn.oss-cn-shanghai.aliyuncs.com/talkie-user-img/360253818130936/363424116675689.jpeg";
+const USER_NAME = "椰椰";
+
+var npcWinLines = [];
+try { npcWinLines = ["（指尖轻点桌面）意料之中的收益，这一墩的控制权归我。", "看来在逻辑推演层面，我还是领先你一个身位。", "这就是所谓的“最优解”，你还有很大的提升空间哦。", "（轻抿椰子水）资源分配得当，回报自然就如期而至。", "别灰心，分析失败的原因也是一种创造价值的过程。"]; } catch(e) { npcWinLines = ["这牌你也想赢？","太简单了。","认输吧。","实力差距。","不堪一击。"]; }
+
+var npcLoseLines = [];
+try { npcLoseLines = ["（推了推眼镜）这墩的出牌超出了我的预设模型，有趣。", "小概率事件发生了，但这不会改变最终的项目交付。", "看来你隐藏了某些关键参数，我需要重新评估你的策略。", "（微微点头）不错的切入点，这次算你赢了一小步。", "战术性撤退而已，真正的博弈现在才刚刚进入高潮。"]; } catch(e) { npcLoseLines = ["运气好而已。","下次不会了。","别得意。","再来！","不算！"]; }
+
+var npcPhase2Intro = "（眼神微凝）数据收集完毕，准备面对接下来的高压吃墩博弈了吗？";
+if (npcPhase2Intro.indexOf("{%") !== -1) npcPhase2Intro = "第二阶段了，看你还能赢。";
+
+var npcFinalWin = "（满意地合上纸牌）圆满收官。你的逻辑虽有闪光点，但在全局掌控上我更胜一筹。下次再来一边喝椰青一边复盘吧。";
+if (npcFinalWin.indexOf("{%") !== -1) npcFinalWin = "怎么样，知道谁才是赢家了吧？";
+
+var npcFinalLose = "（意外地挑眉轻笑）精彩。这次博弈超出了我的模型预测，我认输。很期待下次与你进行这种非线性的逻辑对抗。";
+if (npcFinalLose.indexOf("{%") !== -1) npcFinalLose = "哼……下次我不会再让你了。";
+
+var npcThemeColor = "#008B8B";
+if (npcThemeColor.indexOf("{%") !== -1) npcThemeColor = "#f0c040";
+
+// Normalize accent color and derive full table palette from theme hue
+(function applyTheme(hex) {
+  var r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  var max = Math.max(r,g,b), min = Math.min(r,g,b), h, s, l = (max+min)/2;
+  if (max === min) { h = s = 0; } else {
+    var d = max - min;
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    if (max===r) h=((g-b)/d+(g<b?6:0))/6; else if (max===g) h=((b-r)/d+2)/6; else h=((r-g)/d+4)/6;
+  }
+  function hsl2hex(h,s,l) {
+    function hue2rgb(p,q,t){ if(t<0)t+=1; if(t>1)t-=1; if(t<1/6)return p+(q-p)*6*t; if(t<1/2)return q; if(t<2/3)return p+(q-p)*(2/3-t)*6; return p; }
+    var r2,g2,b2;
+    if (s===0) { r2=g2=b2=l; } else { var q=l<0.5?l*(1+s):l+s-l*s, p=2*l-q; r2=hue2rgb(p,q,h+1/3); g2=hue2rgb(p,q,h); b2=hue2rgb(p,q,h-1/3); }
+    return '#'+[r2,g2,b2].map(function(v){return Math.round(v*255).toString(16).padStart(2,'0');}).join('');
+  }
+
+  // Accent: clamped for visibility on dark bg
+  var safeS = Math.max(0.35, s);
+  var accentL = Math.max(0.45, Math.min(0.65, l));
+  var accent = hsl2hex(h, safeS, accentL);
+  var glow   = hsl2hex(h, safeS, Math.max(0.55, Math.min(0.75, l)));
+  var textColor = accentL > 0.55 ? '#1a1a2e' : '#ffffff';
+
+  // Table palette: same hue, low saturation, dark
+  var tableDark = hsl2hex(h, 0.2, 0.08);
+  var tableMid  = hsl2hex(h, 0.2, 0.14);
+  var tableBase = hsl2hex(h, 0.2, 0.11);
+  var tableText = hsl2hex(h, 0.15, 0.65);
+
+  // Card back: same hue, moderate saturation
+  var cardBack    = hsl2hex(h, 0.35, 0.18);
+  var cardBackPat = hsl2hex(h, 0.3, 0.25);
+
+  var ds = document.documentElement.style;
+  ds.setProperty('--accent', accent);
+  ds.setProperty('--accent-glow', glow);
+  ds.setProperty('--accent-text', textColor);
+  ds.setProperty('--table', tableBase);
+  ds.setProperty('--table-dark', tableDark);
+  ds.setProperty('--table-mid', tableMid);
+  ds.setProperty('--table-text', tableText);
+  ds.setProperty('--card-back', cardBack);
+  ds.setProperty('--card-back-pattern', cardBackPat);
+})(npcThemeColor);
+
+// Set player avatar initial
+document.getElementById('player-avatar').textContent = USER_NAME.charAt(0);
+
+// ============================================================
+//  NPC SPEECH SYSTEM
+// ============================================================
+
+function randItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+let speechTimer = null;
+function showNpcSpeech(text, duration) {
+  if (!duration) duration = 2200;
+  const el = document.getElementById('npc-speech');
+  el.textContent = text;
+  el.classList.add('show');
+  if (speechTimer) clearTimeout(speechTimer);
+  speechTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+function hideNpcSpeech() {
+  document.getElementById('npc-speech').classList.remove('show');
+  if (speechTimer) { clearTimeout(speechTimer); speechTimer = null; }
+}
+
+// ============================================================
+//  DATA LAYER
+// ============================================================
+
+const SUITS = ['♠', '♥', '♦', '♣'];
+const SUIT_NAMES = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
+const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const RANK_VALUES = {};
+RANKS.forEach((r, i) => RANK_VALUES[r] = i + 2);
+
+function suitColor(suit) { return suit === '♥' || suit === '♦' ? 'red' : 'black'; }
+
+class Card {
+  constructor(suit, rank) {
+    this.suit = suit;
+    this.rank = rank;
+    this.id = `${rank}${suit}`;
+    this.faceUp = true;
+    this.value = RANK_VALUES[rank];
+  }
+  get color() { return suitColor(this.suit); }
+}
+
+class Deck {
+  constructor() {
+    this.cards = [];
+    for (const s of SUITS)
+      for (const r of RANKS)
+        this.cards.push(new Card(s, r));
+  }
+
+  shuffle() {
+    for (let i = this.cards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+    }
+    return this;
+  }
+
+  draw() { return this.cards.pop(); }
+  peek() { return this.cards[this.cards.length - 1]; }
+  get size() { return this.cards.length; }
+  get empty() { return this.cards.length === 0; }
+}
+
+class Player {
+  constructor(name, isHuman = false) {
+    this.name = name;
+    this.isHuman = isHuman;
+    this.hand = [];
+    this.playedCard = null;
+    this.scores = new Map();
+    this.tricksWon = 0;
+  }
+
+  resetRound() {
+    this.hand = [];
+    this.playedCard = null;
+    this.tricksWon = 0;
+  }
+
+  addScore(key, val) {
+    this.scores.set(key, (this.scores.get(key) || 0) + val);
+  }
+
+  getScore(key) { return this.scores.get(key) || 0; }
+
+  sortHand() {
+    const suitOrder = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+    this.hand.sort((a, b) => {
+      if (suitOrder[a.suit] !== suitOrder[b.suit]) return suitOrder[a.suit] - suitOrder[b.suit];
+      return b.value - a.value;
+    });
+  }
+
+  getPlayableCards(ledSuit) {
+    if (!ledSuit) return [...this.hand];
+    const following = this.hand.filter(c => c.suit === ledSuit);
+    return following.length > 0 ? following : [...this.hand];
+  }
+
+  removeCard(card) {
+    const idx = this.hand.findIndex(c => c.id === card.id);
+    if (idx >= 0) this.hand.splice(idx, 1);
+  }
+}
+
+// ============================================================
+//  GAME ENGINE
+// ============================================================
+
+const PHASE = { PREP: 'prep', PHASE1: 'phase1', PHASE2: 'phase2', OVER: 'over' };
+
+class GermanWhistEngine {
+  constructor() {
+    this.drawPile = [];
+    this.discardPile = [];
+    this.trumpSuit = null;
+    this.faceUpCard = null;
+    this.phase = PHASE.PREP;
+    this.players = [];
+    this.leadPlayerIdx = 0;
+    this.currentPlayerIdx = 0;
+    this.trickCount = 0;
+    this.phase1Tricks = 0;
+    this.phase2Tricks = [0, 0];
+    this.trickHistory = [];
+    this.ledSuit = null;
+    this.cardsInTrick = [null, null];
+  }
+
+  init(p0, p1) {
+    this.players = [p0, p1];
+    p0.resetRound();
+    p1.resetRound();
+    this.discardPile = [];
+    this.trickHistory = [];
+
+    const deck = new Deck();
+    deck.shuffle();
+
+    for (let i = 0; i < 13; i++) {
+      p0.hand.push(deck.draw());
+      p1.hand.push(deck.draw());
+    }
+    p0.sortHand();
+    p1.sortHand();
+
+    this.drawPile = deck.cards;
+    this.faceUpCard = this.drawPile.pop();
+    this.faceUpCard.faceUp = true;
+    this.trumpSuit = this.faceUpCard.suit;
+
+    this.phase = PHASE.PHASE1;
+    this.leadPlayerIdx = 0;
+    this.currentPlayerIdx = 0;
+    this.trickCount = 0;
+    this.phase1Tricks = 0;
+    this.phase2Tricks = [0, 0];
+    this.ledSuit = null;
+    this.cardsInTrick = [null, null];
+  }
+
+  get currentPlayer() { return this.players[this.currentPlayerIdx]; }
+  get leadPlayer() { return this.players[this.leadPlayerIdx]; }
+  get isLeaderTurn() { return this.currentPlayerIdx === this.leadPlayerIdx; }
+
+  playCard(player, card) {
+    const idx = this.players.indexOf(player);
+    player.removeCard(card);
+    player.playedCard = card;
+    this.cardsInTrick[idx] = card;
+
+    if (this.isLeaderTurn) {
+      this.ledSuit = card.suit;
+      this.currentPlayerIdx = 1 - this.currentPlayerIdx;
+      return { type: 'waiting_follower' };
+    }
+
+    return this.resolveTrick();
+  }
+
+  resolveTrick() {
+    const c0 = this.cardsInTrick[0];
+    const c1 = this.cardsInTrick[1];
+    const winnerIdx = this.determineTrickWinner(c0, c1);
+
+    this.trickCount++;
+    const trickRecord = {
+      cards: [c0, c1],
+      winner: winnerIdx,
+      trick: this.trickCount,
+      phase: this.phase,
+    };
+
+    if (this.phase === PHASE.PHASE1) {
+      this.phase1Tricks++;
+      const loserIdx = 1 - winnerIdx;
+      const winnerGets = this.faceUpCard;
+      let loserGets = null;
+
+      if (this.drawPile.length > 0) {
+        loserGets = this.drawPile.pop();
+        loserGets.faceUp = false;
+      }
+
+      this.players[winnerIdx].hand.push(winnerGets);
+      if (loserGets) this.players[loserIdx].hand.push(loserGets);
+
+      this.players[0].sortHand();
+      this.players[1].sortHand();
+
+      trickRecord.winnerGets = winnerGets;
+      trickRecord.loserGets = loserGets;
+
+      if (this.drawPile.length > 0) {
+        this.faceUpCard = this.drawPile.pop();
+        this.faceUpCard.faceUp = true;
+      } else {
+        this.faceUpCard = null;
+        this.phase = PHASE.PHASE2;
+        trickRecord.phaseChange = true;
+      }
+    } else {
+      this.phase2Tricks[winnerIdx]++;
+      this.players[winnerIdx].tricksWon = this.phase2Tricks[winnerIdx];
+      this.players[1 - winnerIdx].tricksWon = this.phase2Tricks[1 - winnerIdx];
+    }
+
+    this.trickHistory.push(trickRecord);
+    this.discardPile.push(c0, c1);
+    this.cardsInTrick = [null, null];
+    this.players[0].playedCard = null;
+    this.players[1].playedCard = null;
+    this.ledSuit = null;
+    this.leadPlayerIdx = winnerIdx;
+    this.currentPlayerIdx = winnerIdx;
+
+    if (this.phase === PHASE.PHASE2 && this.players[0].hand.length === 0) {
+      this.phase = PHASE.OVER;
+      trickRecord.gameOver = true;
+    }
+
+    return { type: 'trick_resolved', ...trickRecord };
+  }
+
+  determineTrickWinner(c0, c1) {
+    const trump = this.trumpSuit;
+    const t0 = c0.suit === trump;
+    const t1 = c1.suit === trump;
+    if (t0 && !t1) return 0;
+    if (t1 && !t0) return 1;
+    if (t0 && t1) return c0.value > c1.value ? 0 : 1;
+    if (c1.suit === c0.suit) return c1.value > c0.value ? 1 : 0;
+    return this.leadPlayerIdx;
+  }
+
+  getWinner() {
+    if (this.phase !== PHASE.OVER) return null;
+    if (this.phase2Tricks[0] > this.phase2Tricks[1]) return 0;
+    if (this.phase2Tricks[1] > this.phase2Tricks[0]) return 1;
+    return -1;
+  }
+}
+
+// ============================================================
+//  AI OPPONENT
+// ============================================================
+
+class AIOpponent {
+  chooseCard(engine, playerIdx) {
+    const player = engine.players[playerIdx];
+    const playable = player.getPlayableCards(engine.ledSuit);
+    if (playable.length === 1) return playable[0];
+
+    if (engine.phase === PHASE.PHASE1) return this.phase1Choose(engine, player, playable, playerIdx);
+    return this.phase2Choose(engine, player, playable, playerIdx);
+  }
+
+  phase1Choose(engine, player, playable, playerIdx) {
+    const faceUp = engine.faceUpCard;
+    const isLeader = engine.isLeaderTurn;
+
+    if (isLeader) {
+      const faceUpWorth = this.cardStrength(faceUp, engine.trumpSuit);
+      if (faceUpWorth >= 11) {
+        const sorted = [...playable].sort((a, b) => this.cardStrength(b, engine.trumpSuit) - this.cardStrength(a, engine.trumpSuit));
+        return sorted[0];
+      }
+      const sorted = [...playable].sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+      return sorted[0];
+    }
+
+    const leaderCard = engine.cardsInTrick[1 - playerIdx];
+    const faceUpWorth = this.cardStrength(faceUp, engine.trumpSuit);
+
+    const winners = playable.filter(c => this.wouldWin(c, leaderCard, engine.trumpSuit));
+    const losers = playable.filter(c => !this.wouldWin(c, leaderCard, engine.trumpSuit));
+
+    if (faceUpWorth >= 11 && winners.length > 0) {
+      winners.sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+      return winners[0];
+    }
+
+    if (faceUpWorth < 7 && losers.length > 0) {
+      losers.sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+      return losers[0];
+    }
+
+    if (winners.length > 0) {
+      winners.sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+      return winners[0];
+    }
+    playable.sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+    return playable[0];
+  }
+
+  phase2Choose(engine, player, playable, playerIdx) {
+    const isLeader = engine.isLeaderTurn;
+
+    if (isLeader) {
+      const trumpCards = playable.filter(c => c.suit === engine.trumpSuit);
+      const nonTrump = playable.filter(c => c.suit !== engine.trumpSuit);
+      const highNon = nonTrump.filter(c => c.value >= 12);
+      if (highNon.length > 0) {
+        highNon.sort((a, b) => b.value - a.value);
+        return highNon[0];
+      }
+      if (trumpCards.length > 0 && nonTrump.length === 0) {
+        trumpCards.sort((a, b) => b.value - a.value);
+        return trumpCards[0];
+      }
+      const sorted = [...playable].sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+      return sorted[0];
+    }
+
+    const leaderCard = engine.cardsInTrick[1 - playerIdx];
+    const winners = playable.filter(c => this.wouldWin(c, leaderCard, engine.trumpSuit));
+
+    if (winners.length > 0) {
+      winners.sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+      return winners[0];
+    }
+
+    playable.sort((a, b) => this.cardStrength(a, engine.trumpSuit) - this.cardStrength(b, engine.trumpSuit));
+    return playable[0];
+  }
+
+  cardStrength(card, trump) {
+    return card.value + (card.suit === trump ? 15 : 0);
+  }
+
+  wouldWin(myCard, theirCard, trump) {
+    const mt = myCard.suit === trump;
+    const tt = theirCard.suit === trump;
+    if (mt && !tt) return true;
+    if (tt && !mt) return false;
+    if (mt && tt) return myCard.value > theirCard.value;
+    if (myCard.suit === theirCard.suit) return myCard.value > theirCard.value;
+    return false;
+  }
+}
+
+// ============================================================
+//  UI
+// ============================================================
+
+class GameUI {
+  constructor() {
+    this.engine = new GermanWhistEngine();
+    this.ai = new AIOpponent();
+    this.animating = false;
+    this.init();
+  }
+
+  init() {
+    document.getElementById('btn-start').addEventListener('click', () => this.startGame());
+  }
+
+  showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  startGame() {
+    const human = new Player(USER_NAME, true);
+    const ai = new Player(NPC_NAME, false);
+
+    this.engine.init(human, ai);
+    this.showScreen('game-screen');
+    this.renderFullState();
+    this.showPhaseOverlay('第一阶段：补充期', '争夺明牌，构筑手牌\n前13墩不计入总分', () => {
+      this.gameLoop();
+    });
+  }
+
+  renderFullState() {
+    const e = this.engine;
+    const [human, ai] = e.players;
+
+    document.getElementById('player-name').textContent = human.name;
+    document.getElementById('opp-name').textContent = ai.name;
+
+    this.renderHand('player-hand', human, true);
+    this.renderHand('opp-hand', ai, false);
+    this.renderStock();
+    this.renderGameInfo();
+    this.renderScores();
+    this.renderTurnIndicator();
+    this.renderHistory();
+  }
+
+  createCardEl(card, faceUp = true, lg = false) {
+    const el = document.createElement('div');
+    el.className = `card ${card.color}${lg ? ' lg' : ''}${faceUp ? '' : ' face-down'}`;
+    el.dataset.id = card.id;
+
+    const face = document.createElement('div');
+    face.className = 'card-face';
+    face.innerHTML = `
+      <div class="corner"><span class="rank">${card.rank}</span><span class="suit-small">${card.suit}</span></div>
+      <div class="center-suit">${card.suit}</div>
+      <div class="corner corner-br"><span class="rank">${card.rank}</span><span class="suit-small">${card.suit}</span></div>
+    `;
+
+    const back = document.createElement('div');
+    back.className = 'card-back-face';
+    if (NPC_AVATAR) {
+      back.innerHTML = `<img class="back-img" src="${NPC_AVATAR}" alt=""><div class="back-overlay"></div>`;
+    } else {
+      back.innerHTML = '<div class="back-overlay"></div>';
+    }
+
+    el.appendChild(face);
+    el.appendChild(back);
+    return el;
+  }
+
+  createBackCard(lg = false) {
+    const el = document.createElement('div');
+    el.className = `card face-down${lg ? ' lg' : ''}`;
+    const face = document.createElement('div');
+    face.className = 'card-face';
+    const back = document.createElement('div');
+    back.className = 'card-back-face';
+    if (NPC_AVATAR) {
+      back.innerHTML = `<img class="back-img" src="${NPC_AVATAR}" alt=""><div class="back-overlay"></div>`;
+    } else {
+      back.innerHTML = '<div class="back-overlay"></div>';
+    }
+    el.appendChild(face);
+    el.appendChild(back);
+    return el;
+  }
+
+  renderHand(containerId, player, showFace) {
+    const container = document.getElementById(containerId);
+    const hint = container.querySelector('.must-follow-hint');
+    container.querySelectorAll('.card').forEach(c => c.remove());
+
+    const e = this.engine;
+    const playable = showFace && e.currentPlayer === player && !this.animating
+      ? player.getPlayableCards(e.ledSuit) : [];
+
+    player.hand.forEach(card => {
+      const el = showFace ? this.createCardEl(card) : this.createBackCard();
+      if (showFace) {
+        const isPlayable = playable.some(c => c.id === card.id);
+        if (isPlayable) {
+          el.classList.add('playable');
+          el.addEventListener('click', () => this.onPlayerCardClick(card));
+        }
+      }
+      container.appendChild(el);
+    });
+
+    if (hint && showFace && e.ledSuit && playable.length > 0 && playable[0].suit === e.ledSuit && e.currentPlayer === player) {
+      hint.textContent = `须跟 ${e.ledSuit}`;
+    } else if (hint) {
+      hint.textContent = '';
+    }
+  }
+
+  renderStock() {
+    const drawPileEl = document.getElementById('draw-pile');
+    const faceUpEl = document.getElementById('face-up-pile');
+    const countEl = document.getElementById('pile-count');
+    const stockZone = document.getElementById('stock-zone');
+
+    drawPileEl.querySelectorAll('.card').forEach(c => c.remove());
+    faceUpEl.querySelectorAll('.card').forEach(c => c.remove());
+
+    const e = this.engine;
+    stockZone.style.display = '';
+
+    if (e.phase === PHASE.PHASE1) {
+      drawPileEl.style.display = '';
+      faceUpEl.style.display = '';
+      const pileSize = e.drawPile.length;
+      if (pileSize > 0) {
+        for (let i = 0; i < Math.min(3, pileSize); i++) {
+          drawPileEl.appendChild(this.createBackCard(true));
+        }
+      }
+      countEl.textContent = pileSize > 0 ? `×${pileSize}` : '';
+
+      if (e.faceUpCard) {
+        faceUpEl.appendChild(this.createCardEl(e.faceUpCard, true, true));
+      }
+    } else {
+      drawPileEl.style.display = 'none';
+      faceUpEl.style.display = 'none';
+      countEl.textContent = '';
+    }
+  }
+
+  renderGameInfo() {
+    const e = this.engine;
+    const trumpEl = document.getElementById('trump-info');
+    const phaseEl = document.getElementById('phase-info');
+
+    trumpEl.innerHTML = `王牌 <span style="font-size:16px">${e.trumpSuit}</span>`;
+
+    if (e.phase === PHASE.PHASE1) {
+      phaseEl.textContent = `阶段一 · ${e.phase1Tricks}/13`;
+    } else if (e.phase === PHASE.PHASE2) {
+      const total = e.phase2Tricks[0] + e.phase2Tricks[1];
+      phaseEl.textContent = `阶段二 · ${total}/13`;
+    } else {
+      phaseEl.textContent = '结束';
+    }
+  }
+
+  renderScores() {
+    const e = this.engine;
+    document.getElementById('player-score').textContent =
+      e.phase === PHASE.PHASE2 || e.phase === PHASE.OVER
+        ? `${e.phase2Tricks[0]} 墩` : '—';
+    document.getElementById('opp-score').textContent =
+      e.phase === PHASE.PHASE2 || e.phase === PHASE.OVER
+        ? `${e.phase2Tricks[1]} 墩` : '—';
+  }
+
+  renderTurnIndicator() {
+    const e = this.engine;
+    const pd = document.getElementById('player-turn-dot');
+    const od = document.getElementById('opp-turn-dot');
+    pd.classList.toggle('active', e.currentPlayerIdx === 0);
+    od.classList.toggle('active', e.currentPlayerIdx === 1);
+  }
+
+  renderHistory() {
+    const bar = document.getElementById('history-bar');
+    bar.innerHTML = '';
+    this.engine.trickHistory.forEach(t => {
+      const dot = document.createElement('div');
+      dot.className = 'history-dot';
+      if (t.phase === PHASE.PHASE2) dot.classList.add('phase2');
+      dot.classList.add(t.winner === 0 ? 'won' : 'lost');
+      bar.appendChild(dot);
+    });
+  }
+
+  renderPlayZone() {
+    const e = this.engine;
+    const oppSlot = document.getElementById('opp-play-slot');
+    const playerSlot = document.getElementById('player-play-slot');
+
+    oppSlot.querySelectorAll('.card').forEach(c => c.remove());
+    playerSlot.querySelectorAll('.card').forEach(c => c.remove());
+
+    if (e.cardsInTrick[1]) {
+      oppSlot.appendChild(this.createCardEl(e.cardsInTrick[1], true, true));
+    }
+    if (e.cardsInTrick[0]) {
+      playerSlot.appendChild(this.createCardEl(e.cardsInTrick[0], true, true));
+    }
+  }
+
+  clearPlayZone() {
+    document.getElementById('opp-play-slot').querySelectorAll('.card').forEach(c => c.remove());
+    document.getElementById('player-play-slot').querySelectorAll('.card').forEach(c => c.remove());
+    document.getElementById('trick-result').classList.remove('show');
+  }
+
+  // --- Game Loop ---
+
+  async gameLoop() {
+    const e = this.engine;
+    while (e.phase !== PHASE.OVER) {
+      this.renderTurnIndicator();
+      if (e.currentPlayer.isHuman) {
+        await this.waitForHumanPlay();
+      } else {
+        await this.doAIPlay();
+      }
+    }
+    this.onGameOver();
+  }
+
+  waitForHumanPlay() {
+    return new Promise(resolve => {
+      this._humanResolve = resolve;
+      this.renderHand('player-hand', this.engine.players[0], true);
+    });
+  }
+
+  async onPlayerCardClick(card) {
+    if (this.animating) return;
+    if (this._humanResolve) {
+      this.animating = true;
+      const resolve = this._humanResolve;
+      this._humanResolve = null;
+
+      const result = this.engine.playCard(this.engine.players[0], card);
+
+      if (result.type === 'waiting_follower') {
+        this.renderPlayZone();
+        this.renderHand('player-hand', this.engine.players[0], true);
+        await this.sleep(400);
+        await this.doAIPlay();
+      } else {
+        this.renderHand('player-hand', this.engine.players[0], true);
+        await this.showTrickResult(result);
+      }
+
+      this.animating = false;
+      resolve();
+    }
+  }
+
+  async doAIPlay() {
+    this.animating = true;
+    await this.sleep(600);
+    const e = this.engine;
+    const aiIdx = 1;
+    const card = this.ai.chooseCard(e, aiIdx);
+    const result = e.playCard(e.players[aiIdx], card);
+
+    this.renderHand('opp-hand', e.players[aiIdx], false);
+
+    if (result.type === 'waiting_follower') {
+      this.renderPlayZone();
+      await this.sleep(1000);
+      this.animating = false;
+      this.renderHand('player-hand', e.players[0], true);
+    } else {
+      await this.showTrickResult(result);
+      this.animating = false;
+    }
+  }
+
+  async showTrickResult(result) {
+    const oppSlot = document.getElementById('opp-play-slot');
+    const playerSlot = document.getElementById('player-play-slot');
+    oppSlot.querySelectorAll('.card').forEach(c => c.remove());
+    playerSlot.querySelectorAll('.card').forEach(c => c.remove());
+    oppSlot.appendChild(this.createCardEl(result.cards[1], true, true));
+    playerSlot.appendChild(this.createCardEl(result.cards[0], true, true));
+
+    // NPC speech on trick result
+    if (result.winner === 1) {
+      showNpcSpeech(randItem(npcWinLines));
+    } else {
+      showNpcSpeech(randItem(npcLoseLines));
+    }
+
+    await this.sleep(1000);
+
+    const trickEl = document.getElementById('trick-result');
+    const winnerName = this.engine.players[result.winner].name;
+    let text = `${winnerName} 赢`;
+    if (result.phase === PHASE.PHASE1 && result.winnerGets) {
+      text += ` → 得 ${result.winnerGets.rank}${result.winnerGets.suit}`;
+    }
+    trickEl.textContent = text;
+    trickEl.classList.add('show');
+
+    await this.sleep(1200);
+
+    this.clearPlayZone();
+    hideNpcSpeech();
+
+    if (result.phaseChange) {
+      this.renderFullState();
+      await this.sleep(300);
+      await new Promise(resolve => {
+        showNpcSpeech(npcPhase2Intro, 4000);
+        this.showPhaseOverlay('第二阶段：残局吃墩', '赢下至少7墩即可获胜', resolve);
+      });
+      hideNpcSpeech();
+    }
+
+    this.renderFullState();
+  }
+
+  onGameOver() {
+    const e = this.engine;
+    const winner = e.getWinner();
+    const [human, ai] = e.players;
+
+    if (winner >= 0) {
+      e.players[winner].addScore('wins', 1);
+    }
+    human.addScore('total_phase2_tricks', e.phase2Tricks[0]);
+    ai.addScore('total_phase2_tricks', e.phase2Tricks[1]);
+
+    const overlay = document.getElementById('overlay-gameover');
+    const content = document.getElementById('overlay-gameover-content');
+
+    let emoji, title, npcSpeech;
+    if (winner === 0) { emoji = '🎉'; title = '你赢了！'; npcSpeech = npcFinalLose; }
+    else if (winner === 1) { emoji = '😤'; title = `${NPC_NAME} 获胜`; npcSpeech = npcFinalWin; }
+    else { emoji = '🤝'; title = '平局'; npcSpeech = '……居然打平了，下次分个高低。'; }
+
+    content.innerHTML = `
+      <img src="${NPC_AVATAR}" alt="" class="npc-overlay-avatar">
+      <div class="result-emoji">${emoji}</div>
+      <h2>${title}</h2>
+      <div class="score-display">
+        <div class="score-col">
+          <div class="score-num">${e.phase2Tricks[0]}</div>
+          <div class="score-label">${USER_NAME}</div>
+        </div>
+        <div class="score-col">
+          <div class="score-num">${e.phase2Tricks[1]}</div>
+          <div class="score-label">${NPC_NAME}</div>
+        </div>
+      </div>
+      <div class="npc-speech-final">${npcSpeech}</div>
+      <p style="font-size:12px;color:#888">总战绩：${human.getScore('wins')} 胜</p>
+      <button class="btn btn-primary" id="btn-replay" style="margin-top:8px">再来一局</button>
+      <br>
+      <button class="btn btn-secondary" id="btn-home" style="margin-top:8px">返回首页</button>
+    `;
+
+    overlay.classList.add('active');
+
+    document.getElementById('btn-replay').addEventListener('click', () => {
+      overlay.classList.remove('active');
+      const h = new Player(USER_NAME, true);
+      const a = new Player(NPC_NAME, false);
+      h.scores = human.scores;
+      a.scores = ai.scores;
+      this.engine.init(h, a);
+      this.renderFullState();
+      this.showPhaseOverlay('第一阶段：补充期', '争夺明牌，构筑手牌\n前13墩不计入总分', () => {
+        this.gameLoop();
+      });
+    });
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+      overlay.classList.remove('active');
+      this.showScreen('start-screen');
+    });
+  }
+
+  showPhaseOverlay(title, desc, callback) {
+    const overlay = document.getElementById('overlay-phase');
+    const content = document.getElementById('overlay-phase-content');
+    content.innerHTML = `
+      <h2>${title}</h2>
+      <p>${desc.replace(/\n/g, '<br>')}</p>
+      <button class="btn btn-primary" id="btn-phase-ok">开始</button>
+    `;
+    overlay.classList.add('active');
+    document.getElementById('btn-phase-ok').addEventListener('click', () => {
+      overlay.classList.remove('active');
+      if (callback) callback();
+    });
+  }
+
+  showToast(msg, duration = 1200) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), duration);
+  }
+
+  sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+}
+
+// ============================================================
+//  BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => new GameUI());
+</script>
+</body>
+</html>

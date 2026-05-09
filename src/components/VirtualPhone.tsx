@@ -49,6 +49,7 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [openApp, setOpenApp] = useState<AppMeta | null>(null);
   const [openFolder, setOpenFolder] = useState<FolderData | null>(null);
+  const [folderAnimState, setFolderAnimState] = useState<'idle' | 'opening' | 'closing'>('idle');
   const [appAnimState, setAppAnimState] = useState<'idle' | 'opening' | 'closing'>('idle');
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [phoneScale, setPhoneScale] = useState(1);
@@ -177,7 +178,7 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
 
   const renderFolderIcon = (folder: FolderData) => (
     <button key={`folder-${folder.name}`} className="flex flex-col items-center gap-1.5"
-      onClick={() => setOpenFolder(folder)}>
+      onClick={() => { setOpenFolder(folder); setFolderAnimState('opening'); setTimeout(() => setFolderAnimState('idle'), 250); }}>
       <div className="w-[60px] h-[60px] rounded-[14px] p-[6px] grid grid-cols-2 grid-rows-2 gap-[3px] transition-transform active:scale-90"
         style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
         {folder.apps.slice(0, 4).map((app, i) => (
@@ -273,11 +274,28 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
 
                 {/* ─── Folder popup ─── */}
                 {openFolder && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center"
-                    style={{ borderRadius: SCREEN_R, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-                    onClick={(e) => { if (e.target === e.currentTarget) setOpenFolder(null); }}>
-                    <div className="w-[280px] rounded-[24px] p-5"
-                      style={{ background: 'rgba(40,40,50,0.85)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div
+                    className="absolute inset-0 z-20 flex items-center justify-center"
+                    style={{
+                      borderRadius: SCREEN_R,
+                      background: 'rgba(0,0,0,0.5)',
+                      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                      animation: folderAnimState === 'opening' ? 'folderBgIn 0.25s ease forwards'
+                        : folderAnimState === 'closing' ? 'folderBgOut 0.2s ease forwards' : undefined,
+                    }}
+                    onClick={(e) => {
+                      if (e.target !== e.currentTarget) return;
+                      setFolderAnimState('closing');
+                      setTimeout(() => { setOpenFolder(null); setFolderAnimState('idle'); }, 200);
+                    }}>
+                    <div
+                      className="w-[280px] rounded-[24px] p-5"
+                      style={{
+                        background: 'rgba(40,40,50,0.85)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        animation: folderAnimState === 'opening' ? 'folderCardIn 0.3s cubic-bezier(0.32,0.72,0,1) forwards'
+                          : folderAnimState === 'closing' ? 'folderCardOut 0.2s ease forwards' : undefined,
+                      }}>
                       <div className="text-[15px] text-white/80 font-medium text-center mb-4">{openFolder.name}</div>
                       <div className="grid grid-cols-3 gap-4 justify-items-center">
                         {openFolder.apps.map((app) =>
@@ -285,6 +303,12 @@ export default function VirtualPhone({ apps }: VirtualPhoneProps) {
                         )}
                       </div>
                     </div>
+                    <style>{`
+                      @keyframes folderBgIn { from { opacity: 0; } to { opacity: 1; } }
+                      @keyframes folderBgOut { from { opacity: 1; } to { opacity: 0; } }
+                      @keyframes folderCardIn { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+                      @keyframes folderCardOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.6); } }
+                    `}</style>
                   </div>
                 )}
               </div>
