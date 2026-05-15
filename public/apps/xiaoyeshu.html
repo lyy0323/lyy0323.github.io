@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>小椰书</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --accent: rgb(221, 212, 237);
+  --accent-mid: #9B86C2;
+  --accent-deep: #7B68A8;
+  --accent-text: #5A4682;
+  --bg: #F8F6FC;
+  --card: #FFFFFF;
+  --text: #1A1A1A;
+  --text-secondary: #8E8E93;
+  --border: rgba(221, 212, 237, 0.5);
+  --border-solid: #E8E4F0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--border-solid);
+}
+
+.header-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 14px 16px 0;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-coconut {
+  display: inline-block;
+  font-size: 22px;
+  animation: coconutBob 3s ease-in-out infinite;
+}
+
+@keyframes coconutBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-2px) rotate(3deg); }
+  75% { transform: translateY(1px) rotate(-2deg); }
+}
+
+/* Filter tabs */
+.filter-bar {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-top: 12px;
+}
+
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-tab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, transform 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  font-family: inherit;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-tab.active {
+  color: var(--accent-deep);
+  border-bottom-color: var(--accent-deep);
+  font-weight: 600;
+}
+
+.filter-tab:active {
+  transform: scale(0.92);
+}
+
+.filter-tab:hover { color: var(--text); }
+
+/* Container */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 8px 0;
+}
+
+/* Error */
+.error-banner {
+  margin: 8px 16px;
+  padding: 10px 14px;
+  background: #FFF3F3;
+  border: 1px solid #FFD4D4;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #CC3333;
+}
+
+/* Cards */
+.card {
+  position: relative;
+  background: var(--card);
+  margin: 0;
+  padding: 16px 20px;
+  cursor: pointer;
+  border-bottom: 0.5px solid var(--border-solid);
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2),
+              background 0.2s ease,
+              box-shadow 0.25s ease;
+  transform-origin: center center;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%),
+    rgba(221, 212, 237, 0.35) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.card.touching::after {
+  opacity: 1;
+}
+
+.card.touching {
+  transform: scale(0.975);
+  background: #F8F4FF;
+}
+
+.card:hover { background: #FCFAFF; }
+
+.card-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.source-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.8);
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text);
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-excerpt {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Skeleton */
+.skeleton {
+  padding: 16px 20px;
+  background: var(--card);
+  margin: 0;
+  border-bottom: 0.5px solid var(--border-solid);
+}
+
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, #F0ECF8 25%, #E8E2F4 50%, #F0ECF8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.skeleton-line:nth-child(1) { width: 30%; height: 12px; }
+.skeleton-line:nth-child(2) { width: 80%; height: 18px; }
+.skeleton-line:nth-child(3) { width: 100%; }
+.skeleton-line:nth-child(4) { width: 60%; }
+.skeleton-line:last-child { width: 25%; height: 11px; margin-bottom: 0; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.empty-state::before {
+  content: '🥥';
+  display: block;
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+/* Detail View */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.detail-overlay.open {
+  transform: translateX(0);
+}
+
+.detail-header {
+  position: sticky;
+  top: 0;
+  z-index: 201;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--border-solid);
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s, transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--accent-deep);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.back-btn:hover { background: var(--accent); }
+.back-btn:active { transform: scale(0.85); background: var(--accent); }
+
+.detail-header-title {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  color: var(--text);
+}
+
+.detail-body {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 20px 60px;
+}
+
+.detail-title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.detail-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-solid);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-source-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--accent);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--accent-text);
+}
+
+.detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: var(--accent-deep);
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.detail-link:hover { opacity: 0.9; }
+.detail-link:active { transform: scale(0.95); }
+
+.detail-content {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  word-break: break-word;
+}
+
+.detail-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 12px 0;
+}
+
+.detail-content a { color: var(--accent-deep); }
+
+.detail-content pre {
+  background: #F4F0FA;
+  padding: 12px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 13px;
+  margin: 12px 0;
+}
+
+.detail-content code {
+  background: #EDE8F5;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.detail-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.detail-content blockquote {
+  border-left: 3px solid var(--accent-mid);
+  padding-left: 14px;
+  margin: 12px 0;
+  color: #666;
+}
+
+.detail-content h1, .detail-content h2, .detail-content h3,
+.detail-content h4, .detail-content h5, .detail-content h6 {
+  margin: 20px 0 10px;
+  line-height: 1.4;
+}
+
+.detail-content p { margin: 8px 0; }
+.detail-content ul, .detail-content ol { padding-left: 20px; margin: 8px 0; }
+
+@media (min-width: 700px) {
+  .container { padding: 8px 0; }
+}
+
+@media (max-width: 700px) {
+  .header-inner { padding: 12px 14px 0; }
+  .card { padding: 14px 16px; }
+  .detail-body { padding: 16px 16px 60px; }
+  .detail-title { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-title"><span class="header-coconut">🥥</span> 小椰书</div>
+    <div class="filter-bar" id="filterBar"></div>
+  </div>
+</header>
+
+<main class="container" id="feedContainer">
+  <div id="skeletons"></div>
+  <div id="errors"></div>
+  <div id="cardList"></div>
+</main>
+
+<div class="detail-overlay" id="detailOverlay">
+  <div class="detail-header">
+    <button class="back-btn" id="backBtn" aria-label="返回">&larr;</button>
+    <div class="detail-header-title" id="detailHeaderTitle"></div>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<script>
+const FEEDS = [
+  { name: '文学博客', url: 'https://oscillater.github.io/lit-blog/rss.xml', color: '#FF6B6B', site: '凌川的小站' },
+  { name: '技术笔记', url: 'https://oscillater.github.io/tech-notes/rss.xml', color: '#4ECDC4', site: '凌川的小站' },
+  { name: '山花园', url: 'https://lisanwaier.cn/feed', color: '#FFB347', site: '山花园' },
+  { name: '林雨夜', url: 'https://lyy0323.space/feed.xml', color: '#9B59B6', site: '林雨夜' },
+  { name: '林雨夜·文字', url: 'https://lyy0323.space/writing/feed.xml', color: '#E056A0', site: '林雨夜' },
+];
+
+const CF_WORKER = 'https://rss-coco.yuyemeow.workers.dev';
+
+const PROXIES = [
+  url => `${CF_WORKER}/?url=${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
+
+let allItems = [];
+let activeFilter = '全部';
+
+function showSkeletons() {
+  const el = document.getElementById('skeletons');
+  el.innerHTML = Array(5).fill(0).map(() => `
+    <div class="skeleton">
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line"></div>
+    </div>
+  `).join('');
+}
+
+function hideSkeletons() {
+  document.getElementById('skeletons').innerHTML = '';
+}
+
+async function fetchWithProxy(url) {
+  for (const makeProxy of PROXIES) {
+    try {
+      const res = await fetch(makeProxy(url));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.text();
+    } catch (e) {
+      continue;
+    }
+  }
+  throw new Error(`All proxies failed for ${url}`);
+}
+
+function parseDate(dateStr) {
+  if (!dateStr) return new Date(0);
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? new Date(0) : d;
+}
+
+function stripHTML(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
+function sanitizeHTML(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  tmp.querySelectorAll('script, iframe, object, embed, form, input').forEach(el => el.remove());
+  tmp.querySelectorAll('*').forEach(el => {
+    for (const attr of [...el.attributes]) {
+      if (attr.name.startsWith('on') || (attr.name === 'href' && attr.value.startsWith('javascript:'))) {
+        el.removeAttribute(attr.name);
+      }
+    }
+  });
+  return tmp.innerHTML;
+}
+
+function getTextContent(parent, selectors) {
+  for (const sel of selectors) {
+    const el = parent.querySelector(sel);
+    if (el && el.textContent.trim()) return el.textContent.trim();
+  }
+  return '';
+}
+
+function getHTMLContent(parent) {
+  const encoded = parent.querySelector('content\\:encoded') || parent.querySelector('encoded');
+  if (encoded) return encoded.textContent || encoded.innerHTML || '';
+  const content = parent.querySelector('content');
+  if (content) return content.textContent || content.innerHTML || '';
+  const desc = parent.querySelector('description');
+  if (desc) return desc.textContent || desc.innerHTML || '';
+  return '';
+}
+
+function parseFeed(xmlText, feedInfo) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xmlText, 'application/xml');
+  const parseError = doc.querySelector('parsererror');
+  if (parseError) {
+    const asHTML = parser.parseFromString(xmlText, 'text/html');
+    const body = asHTML.body;
+    if (!body || !body.textContent.trim()) throw new Error('XML parse error');
+    return parseFeedFromHTML(asHTML, feedInfo);
+  }
+  const items = [];
+  doc.querySelectorAll('item, entry').forEach(entry => {
+    const title = getTextContent(entry, ['title']);
+    const link = entry.querySelector('link')?.getAttribute('href')
+      || entry.querySelector('link')?.textContent?.trim() || '';
+    const dateStr = getTextContent(entry, ['pubDate', 'published', 'updated', 'dc\\:date', 'date']);
+    const content = getHTMLContent(entry);
+    const plainText = stripHTML(content);
+    const excerpt = plainText.slice(0, 150) + (plainText.length > 150 ? '...' : '');
+    items.push({ title: title || '(无标题)', link, date: parseDate(dateStr), dateStr, content, excerpt, source: feedInfo.name, site: feedInfo.site, color: feedInfo.color });
+  });
+  return items;
+}
+
+function formatDate(date) {
+  if (!date || date.getTime() === 0) return '';
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (minutes < 1) return '刚刚';
+  if (minutes < 60) return `${minutes} 分钟前`;
+  if (hours < 24) return `${hours} 小时前`;
+  if (days < 30) return `${days} 天前`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderFilters() {
+  const bar = document.getElementById('filterBar');
+  const tabs = ['全部', ...FEEDS.map(f => f.name)];
+  bar.innerHTML = tabs.map(name => `
+    <button class="filter-tab ${name === activeFilter ? 'active' : ''}" data-filter="${name}">${name}</button>
+  `).join('');
+  bar.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.filter;
+      renderFilters();
+      renderCards();
+    });
+  });
+}
+
+function addTouchFeedback(card) {
+  const onDown = (e) => {
+    const rect = card.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const x = ((clientX - rect.left) / rect.width * 100).toFixed(1);
+    const y = ((clientY - rect.top) / rect.height * 100).toFixed(1);
+    card.style.setProperty('--ripple-x', x + '%');
+    card.style.setProperty('--ripple-y', y + '%');
+    card.classList.add('touching');
+  };
+  const onUp = () => { card.classList.remove('touching'); };
+  card.addEventListener('touchstart', onDown, { passive: true });
+  card.addEventListener('touchend', onUp, { passive: true });
+  card.addEventListener('touchcancel', onUp, { passive: true });
+  card.addEventListener('mousedown', onDown);
+  card.addEventListener('mouseup', onUp);
+  card.addEventListener('mouseleave', onUp);
+}
+
+function renderCards() {
+  const list = document.getElementById('cardList');
+  const filtered = activeFilter === '全部' ? allItems : allItems.filter(item => item.source === activeFilter);
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">暂无内容</div>';
+    return;
+  }
+  list.innerHTML = filtered.map((item) => `
+    <div class="card" data-idx="${allItems.indexOf(item)}">
+      <div class="card-source">
+        <span class="source-dot" style="background:${item.color}"></span>
+        ${item.site === item.source ? item.source : item.site + ' · ' + item.source}
+      </div>
+      <div class="card-title">${escapeHTML(item.title)}</div>
+      ${item.excerpt ? `<div class="card-excerpt">${escapeHTML(item.excerpt)}</div>` : ''}
+      <div class="card-meta">${formatDate(item.date)}</div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.card').forEach(card => {
+    addTouchFeedback(card);
+    card.addEventListener('click', () => {
+      showDetail(allItems[parseInt(card.dataset.idx)]);
+    });
+  });
+}
+
+function showDetail(item) {
+  const overlay = document.getElementById('detailOverlay');
+  document.getElementById('detailHeaderTitle').textContent = item.source;
+  document.getElementById('detailBody').innerHTML = `
+    <h1 class="detail-title">${escapeHTML(item.title)}</h1>
+    <div class="detail-meta">
+      <span class="detail-source-tag">
+        <span class="source-dot" style="background:${item.color}"></span>
+        ${escapeHTML(item.site === item.source ? item.source : item.site + ' · ' + item.source)}
+      </span>
+      <span>${formatDate(item.date)}</span>
+    </div>
+    <div class="detail-content">${sanitizeHTML(item.content)}</div>
+    ${item.link ? `<a class="detail-link" href="${escapeHTML(item.link)}" target="_blank" rel="noopener">阅读原文 →</a>` : ''}
+  `;
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function hideDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('backBtn').addEventListener('click', hideDetail);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideDetail(); });
+
+async function init() {
+  renderFilters();
+  showSkeletons();
+  const results = await Promise.allSettled(
+    FEEDS.map(async feed => {
+      const xml = await fetchWithProxy(feed.url);
+      return parseFeed(xml, feed);
+    })
+  );
+  hideSkeletons();
+  const errors = [];
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') allItems.push(...result.value);
+    else errors.push(FEEDS[i].name);
+  });
+  if (errors.length > 0) {
+    document.getElementById('errors').innerHTML = errors.map(name =>
+      `<div class="error-banner">无法加载「${escapeHTML(name)}」的订阅内容</div>`
+    ).join('');
+  }
+  allItems.sort((a, b) => b.date - a.date);
+  renderCards();
+}
+
+init();
+</script>
+</body>
+</html>
