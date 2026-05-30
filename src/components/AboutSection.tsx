@@ -15,7 +15,7 @@ const career: ExpandableItem[] = [
     manPage: [
       { heading: 'NAME', lines: ['MiniMax — 视觉产品组 · Talkie/星野'] },
       { heading: 'SYNOPSIS', lines: ['minimax --role "PM" --team "visual" --since 2026.02'] },
-      { heading: 'DESCRIPTION', lines: ['Talkie/星野卡牌体系重构。', '（详细内容待补充）'] },
+      { heading: 'DESCRIPTION', lines: ['Card-Neo: 重构卡牌体系为 SSR/SR/R 分级制，重新配置生成模型与成本结构，设计卡背叙事字段架构与数据看板。上线首月收入占大盘 ~10%，功能排名第三。', 'Handbook: 独立提出并 own 的需求——用户×NPC 维度的策展编辑器，17天从 PRD 到提测。使用 AI 辅助开发工具链完成全栈开发（含首次 Go 编写），完整走通 code review 与泳道部署流程。'] },
     ],
   },
   {
