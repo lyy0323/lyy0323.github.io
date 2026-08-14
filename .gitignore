@@ -23,3 +23,5 @@ dist/
 
 # Staging
 src/content/blogs/_staging/
+# macOS AppleDouble metadata (exFAT/USB)
+._*
