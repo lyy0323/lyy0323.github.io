@@ -31,6 +31,7 @@ interface ProjectMeta {
 
 interface CareerEntry { org: string; role: string; period: string; details: string[] }
 const CAREER: CareerEntry[] = [
+  { org: '字节跳动', role: 'B端 AI 中台 · 产品', period: '2026.10→now', details: ['2026.10 起负责 B 端 AI 中台方向的产品工作'] },
   { org: 'MiniMax', role: '视觉产品组 · Talkie/星野', period: '2026.02→2026.08', details: ['Card-Neo: 重构卡牌体系为分级制，优化成本结构，设计卡背叙事架构与数据看板', 'Handbook: 独立提出并 own 的策展编辑器需求，17天从 PRD 到提测，全栈开发'] },
   { org: '字节跳动 Seedream', role: 'AI PM · 生图模型评测', period: '2025.11→2026.02', details: ['设计四层树状评估框架，拆分推理能力与生成质量', '用 Shifted Harmonic Mean 聚合算分，短板效应防止高分掩盖缺陷', '方案未采纳，后 reasoning DiT 上线时美学质量下滑验证了方案价值', '另负责用户反馈数据分析与看板建设'] },
   { org: '蔚来能源', role: 'AI PM', period: '2025.09→11', details: ['优化销售渠道 AI Agent：问答准确率 15% → 80%', '诊断知识库质量问题，重构为"服务诀窍 QA + 产品事实 JSON"双轨', '主导部门数据治理：统一三张分散表的数据源，搭建自动化看板'] },

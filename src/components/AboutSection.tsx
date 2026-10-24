@@ -11,6 +11,14 @@ interface SimpleItem { label: string; detail?: string }
 
 const career: ExpandableItem[] = [
   {
+    org: '字节跳动', role: 'B端 AI 中台 · 产品', period: '2026.10 → present', kind: 'corp',
+    manPage: [
+      { heading: 'NAME', lines: ['字节跳动 — B端 AI 中台产品'] },
+      { heading: 'SYNOPSIS', lines: ['bytedance --role "PM" --scope "B端 AI 中台" --since 2026.10'] },
+      { heading: 'DESCRIPTION', lines: ['2026.10 起在字节跳动负责 B 端 AI 中台方向的产品工作。'] },
+    ],
+  },
+  {
     org: 'MiniMax', role: '视觉产品组 · Talkie/星野', period: '2026.02 → 2026.08', kind: 'corp',
     manPage: [
       { heading: 'NAME', lines: ['MiniMax — 视觉产品组 · Talkie/星野'] },
