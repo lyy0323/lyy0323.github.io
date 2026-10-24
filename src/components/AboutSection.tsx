@@ -11,7 +11,7 @@ interface SimpleItem { label: string; detail?: string }
 
 const career: ExpandableItem[] = [
   {
-    org: 'MiniMax', role: '视觉产品组 · Talkie/星野', period: '2026.02 → present', kind: 'corp',
+    org: 'MiniMax', role: '视觉产品组 · Talkie/星野', period: '2026.02 → 2026.08', kind: 'corp',
     manPage: [
       { heading: 'NAME', lines: ['MiniMax — 视觉产品组 · Talkie/星野'] },
       { heading: 'SYNOPSIS', lines: ['minimax --role "PM" --team "visual" --since 2026.02'] },
