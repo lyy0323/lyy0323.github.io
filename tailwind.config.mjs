@@ -1,20 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
   theme: {
     extend: {
       colors: {
+        // 通道值 + <alpha-value>：颜色由 src/styles/global.css 的 CSS 变量提供，
+        // 因此 bg-terminal-green/10 这类透明度写法在亮/暗两套主题下都自动成立。
         terminal: {
-          bg: '#202026',
-          surface: '#1e1e24',
-          border: '#2e2e38',
-          green: '#559977',
-          cyan: '#557799',
-          amber: '#997755',
-          pink: '#995577',
-          purple: '#775599',
-          muted: '#737880',
-          text: '#c8ccd0',
+          bg: 'rgb(var(--c-bg) / <alpha-value>)',
+          surface: 'rgb(var(--c-surface) / <alpha-value>)',
+          border: 'rgb(var(--c-border) / <alpha-value>)',
+          green: 'rgb(var(--c-green) / <alpha-value>)',
+          cyan: 'rgb(var(--c-cyan) / <alpha-value>)',
+          amber: 'rgb(var(--c-amber) / <alpha-value>)',
+          pink: 'rgb(var(--c-pink) / <alpha-value>)',
+          purple: 'rgb(var(--c-purple) / <alpha-value>)',
+          muted: 'rgb(var(--c-muted) / <alpha-value>)',
+          text: 'rgb(var(--c-text) / <alpha-value>)',
         },
       },
       fontFamily: {

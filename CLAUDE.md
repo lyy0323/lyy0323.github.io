@@ -65,7 +65,8 @@ Three collections share `baseFields` (title, description, tags, status, date, fe
 ### Design system
 
 - **Colors**: 6 accent colors from permutations of `rgb(85, 119, 153)` — see tailwind.config.mjs
-- **Background**: `#202026` body, `#1e1e24` surface
+- **Theme**: dark/light, switched by the `dark` class on `<html>`. All color values live as `--c-*` RGB-channel variables in `global.css` (dark under `:root`, light under `html:not(.dark)`); `tailwind.config.mjs` exposes them as `terminal-*` via `rgb(var(--c-x) / <alpha-value>)`, so `bg-terminal-green/10` keeps working in both themes. **Never hardcode a hex in a component** — add or adjust a `--c-*` variable instead.
+- **Background**: `#202026` body, `#1e1e24` surface (dark); `#f4f3ef` / `#fbfaf7` (light)
 - **Fonts**: JetBrains Mono (code), LXGW (CJK)
 - **Scanline**: `global.css` `.scanline::after` overlay at z-index 1
 

@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import InteractiveTerminal from '../components/InteractiveTerminal.tsx';
+import ThemeToggle from '../components/ThemeToggle.tsx';
 import { getCollection } from 'astro:content';
 
 interface Props {
@@ -25,16 +26,46 @@ const projectData = allProjects.map(p => ({
 ---
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
+  <meta name="theme-color" content="#202026" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <title>{title}</title>
+  <!-- 主题初始化：内联同步执行，保证首帧前定好 class，避免闪白/闪黑。
+       默认跟随系统（auto），用户显式选择后写入 localStorage。 -->
+  <script is:inline>
+    (() => {
+      const KEY = 'theme';
+      const read = () => { try { return localStorage.getItem(KEY) || 'auto'; } catch (e) { return 'auto'; } };
+      const system = () => (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      const resolve = (m) => (m === 'auto' ? system() : m);
+      const paint = (m) => {
+        const t = resolve(m);
+        const root = document.documentElement;
+        root.classList.toggle('dark', t === 'dark');
+        root.dataset.themeMode = m;
+        root.dataset.theme = t;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', t === 'dark' ? '#202026' : '#f4f3ef');
+      };
+      paint(read());
+      window.__setTheme = (m) => {
+        try { localStorage.setItem(KEY, m); } catch (e) {}
+        paint(m);
+        window.dispatchEvent(new CustomEvent('theme-change', { detail: m }));
+      };
+      matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+        if (read() === 'auto') paint('auto');
+      });
+    })();
+  </script>
 </head>
 <body class="grid-bg scanline pb-12">
   <slot />
+  <ThemeToggle client:idle />
   <InteractiveTerminal client:load projects={projectData} />
 </body>
 </html>

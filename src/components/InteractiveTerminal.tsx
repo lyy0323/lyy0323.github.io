@@ -167,6 +167,7 @@ const HELP_TEXT = `Available commands:
     open <url>              Open external URL in browser
 
   System
+    theme [light|dark|auto] Switch color scheme (default: auto)
     date        neofetch        clear        help
 
   Operators
@@ -434,6 +435,27 @@ function executeCommand(input: string, cwd: string, ctx: FsCtx, piped?: { expand
       return { output: getNeofetch(ctx.projects.length).split('\n') };
     case 'clear':
       return { output: ['__CLEAR__'] };
+
+    case 'theme': {
+      const apply = (window as unknown as { __setTheme?: (m: string) => void }).__setTheme;
+      const current = document.documentElement.dataset.themeMode || 'auto';
+      if (!arg) {
+        return { output: [
+          `theme: ${current}`,
+          '',
+          'usage:',
+          '  theme light    paper & ink',
+          '  theme dark     the terminal default',
+          '  theme auto     follow system setting',
+        ] };
+      }
+      if (!['light', 'dark', 'auto'].includes(arg)) {
+        return { output: [`theme: unknown mode '${arg}'`, '  modes: light | dark | auto'], error: true };
+      }
+      if (!apply) return { output: ['theme: no display attached (headless)'], error: true };
+      apply(arg);
+      return { output: [`theme → ${arg}`] };
+    }
 
     // removed standalone 'qa' — use 'grep qa index.mdx' instead
     case 'qa':

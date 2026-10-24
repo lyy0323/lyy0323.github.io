@@ -72,23 +72,70 @@
 }
 
 @layer base {
+  /* ── 主题变量 ──────────────────────────────────────────────
+     颜色以「空格分隔的 RGB 通道」形式暴露，配合 tailwind.config.mjs 里的
+     rgb(var(--x) / <alpha-value>) 使用。暗色为 :root 默认值，与加入切换前
+     完全一致；亮色只在 html 缺少 .dark 时覆盖，且保持同一组色相，
+     仅把明度下压到 32–40% 以保证在浅底上的可读性。            */
+  :root {
+    color-scheme: dark;
+
+    --c-bg: 32 32 38;          /* #202026 */
+    --c-surface: 30 30 36;     /* #1e1e24 */
+    --c-border: 46 46 56;      /* #2e2e38 */
+    --c-text: 200 204 208;     /* #c8ccd0 */
+    --c-muted: 115 120 128;    /* #737880 */
+    --c-green: 85 153 119;     /* #559977 */
+    --c-cyan: 85 119 153;      /* #557799 */
+    --c-amber: 153 119 85;     /* #997755 */
+    --c-pink: 153 85 119;      /* #995577 */
+    --c-purple: 119 85 153;    /* #775599 */
+
+    --scanline: rgba(0, 0, 0, 0.03);
+    --grid-tint: rgba(85, 153, 119, 0.02);
+    --window-shadow: 0 0 30px rgba(0, 0, 0, 0.3), 0 0 60px rgba(85, 153, 119, 0.02);
+    --scroll-thumb-hover: #3e3e48;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
+
+    --c-bg: 244 243 239;       /* #f4f3ef */
+    --c-surface: 251 250 247;  /* #fbfaf7 */
+    --c-border: 220 218 211;   /* #dcdad3 */
+    --c-text: 58 58 66;        /* #3a3a42 */
+    --c-muted: 110 110 120;    /* #6e6e78 */
+    --c-green: 47 115 80;      /* #2f7350 */
+    --c-cyan: 53 88 125;       /* #35587d */
+    --c-amber: 138 98 56;      /* #8a6238 */
+    --c-pink: 138 63 98;       /* #8a3f62 */
+    --c-purple: 95 64 144;     /* #5f4090 */
+
+    /* 浅底上要更淡，否则 2px 条纹会像脏点 */
+    --scanline: rgba(0, 0, 0, 0.018);
+    /* 原 .02 的绿色网格在浅底上几乎不可见 */
+    --grid-tint: rgba(85, 119, 153, 0.035);
+    --window-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 24px rgba(60, 55, 45, 0.08);
+    --scroll-thumb-hover: #c9c6bd;
+  }
+
   ::selection {
-    background-color: rgba(85, 153, 119, 0.25);
-    color: #559977;
+    background-color: rgb(var(--c-green) / 0.25);
+    color: rgb(var(--c-green));
   }
 
   ::-webkit-scrollbar {
     width: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #202026;
+    background: rgb(var(--c-bg));
   }
   ::-webkit-scrollbar-thumb {
-    background: #2e2e38;
+    background: rgb(var(--c-border));
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #3e3e48;
+    background: var(--scroll-thumb-hover);
   }
 
   html {
@@ -96,8 +143,8 @@
   }
 
   body {
-    background-color: #202026;
-    color: #c8ccd0;
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-text));
     font-family: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
     overflow-x: hidden;
   }
@@ -106,7 +153,7 @@
 @layer components {
   .terminal-window {
     @apply bg-terminal-surface border border-terminal-border rounded-lg overflow-hidden;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3), 0 0 60px rgba(85, 153, 119, 0.02);
+    box-shadow: var(--window-shadow);
   }
 
   .terminal-header {
@@ -135,10 +182,10 @@
 
   .link-glow {
     @apply text-terminal-cyan hover:text-terminal-green transition-colors duration-300;
-    text-shadow: 0 0 5px rgba(85, 119, 153, 0.2);
+    text-shadow: 0 0 5px rgb(var(--c-cyan) / 0.2);
   }
   .link-glow:hover {
-    text-shadow: 0 0 10px rgba(85, 153, 119, 0.3);
+    text-shadow: 0 0 10px rgb(var(--c-green) / 0.3);
   }
 
   .scanline::after {
@@ -149,8 +196,8 @@
       0deg,
       transparent,
       transparent 2px,
-      rgba(0, 0, 0, 0.03) 2px,
-      rgba(0, 0, 0, 0.03) 4px
+      var(--scanline) 2px,
+      var(--scanline) 4px
     );
     pointer-events: none;
     z-index: 1;
@@ -158,8 +205,8 @@
 
   .grid-bg {
     background-image:
-      linear-gradient(rgba(85, 153, 119, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(85, 153, 119, 0.02) 1px, transparent 1px);
+      linear-gradient(var(--grid-tint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-tint) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 
