@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import 'katex/dist/katex.min.css';
 
 export async function getStaticPaths() {
   const blogs = await getCollection('blogs');

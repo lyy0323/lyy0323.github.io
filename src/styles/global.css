@@ -243,3 +243,10 @@
     @apply px-4 py-3;
   }
 }
+
+/* KaTeX display math: long formulas scroll instead of overflowing the column */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.35rem 0;
+}
